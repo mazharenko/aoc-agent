@@ -5,6 +5,7 @@ description
 authors mazharenko
 repositoryUrl https://github.com/mazharenko/aoc-agent
 licenseExpression MIT
+licenseUrl https://licenses.nuget.org/MIT
 dependencies
   framework: net6.0
   LiteDB >= 5.0.17
