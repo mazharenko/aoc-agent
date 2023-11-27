@@ -1,0 +1,16 @@
+type file
+id mazharenko.AoCAgent
+description
+  todo
+authors mazharenko
+repositoryUrl https://github.com/mazharenko/aoc-agent
+licenseExpression MIT
+dependencies
+  framework: net6.0
+  LiteDB >= 5.0.17
+  Spectre.Console >= 0.46.0
+files
+  ../src/AoCAgent/bin/Release/net6.0/mazharenko.AoCAgent.dll ==> lib/net6.0
+  ../src/AoCAgent.Generator.Attributes/bin/Release/netstandard2.0/mazharenko.AoCAgent.Generator.Attributes.dll ==> lib/net6.0
+  ../src/AoCAgent.Generator.Attributes/bin/Release/netstandard2.0/mazharenko.AoCAgent.Generator.Attributes.dll ==> analyzers/dotnet/cs
+  ../src/AoCAgent.Generator/bin/Release/netstandard2.0/mazharenko.AoCAgent.Generator.dll ==> analyzers/dotnet/cs

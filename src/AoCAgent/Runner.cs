@@ -1,0 +1,249 @@
+using System.Collections.Immutable;
+using System.Diagnostics;
+using JetBrains.Annotations;
+using mazharenko.AoCAgent.Base;
+using mazharenko.AoCAgent.Client;
+using mazharenko.AoCAgent.Misc;
+using Spectre.Console;
+
+namespace mazharenko.AoCAgent;
+
+[PublicAPI]
+public class Runner
+{
+	private static string GetSessionKey()
+	{
+		const string sessionCookieFileName = "SESSION.COOKIE";
+
+		var fileExists = File.Exists(sessionCookieFileName);
+		var existingSessionValue =
+			fileExists ? File.ReadAllText(sessionCookieFileName) : "";
+
+		switch (fileExists, existingSessionValue, DotnetWatch.IsUnderWatch())
+		{
+			case (false, _, false):
+			case (true, "", false):
+				var newSessionValue = AnsiConsole.Ask<string>("Session key was not found. Please provide its value:");
+				File.WriteAllText(sessionCookieFileName, newSessionValue);
+				return newSessionValue;
+			case (false, _, true):
+				File.WriteAllText(sessionCookieFileName, "");
+				throw new Exception("Session key was not found. Empty file is created");
+			case (true, "", true):
+				throw new Exception("Session key value was not found");
+			case (true, var foundValue, _):
+				return foundValue;
+		}
+	}
+
+	public async Task Run(YearBase year)
+	{
+		var sessionKey = GetSessionKey();
+		using var client = new AoCCachingClient(year.Year, new AoCClient(year.Year, sessionKey));
+
+		var currentStats =
+			await AnsiConsole.Live(Renderables.Splash(year.Year))
+				.StartAsync(async ctx =>
+				{
+					ctx.Refresh();
+					// ReSharper disable once AccessToDisposedClosure
+					var stats = await client.GetDayResults();
+					var stars = stats.Sum(x => x.Value ? 1 : 0);
+					ctx.UpdateTarget(Renderables.Splash(year.Year, stars));
+					return stats;
+				});
+
+		await AnsiConsole.Status()
+			.StartAsync("Checking if there are days that are implemented but not solved yet", async ctx =>
+			{
+				var notSolvedDays =
+					year.Days.OrderByDescending(day => day.Num)
+						.Select(day =>
+						{
+							var part1Solved = currentStats.GetValueOrDefault((Day.Create(day.Num), Part._1), false);
+							var part2Solved = currentStats.GetValueOrDefault((Day.Create(day.Num), Part._2), false);
+							if (!part1Solved)
+								return (day, day.Part1);
+							if (!part2Solved)
+								return (day, day.Part2);
+								
+							return ((RunnerDay, RunnerPart)?)null;
+						}).Where(x => x.HasValue)
+						.Select(x => x!.Value)
+						.ToList();
+
+				if (notSolvedDays.Count == 0)
+				{
+					AnsiConsole.MarkupLine("[green bold]There are no days that are not solved yet[/]");
+					return;
+				}
+
+				AnsiConsole.MarkupLine($"Found [yellow bold]{notSolvedDays.Count}[/] not solved days and parts: " +
+				                       string.Join(", ", notSolvedDays.Select(x => $"{x.Item1.Num:00}/{x.Item2.Num}")));
+
+				ctx.Status("Calculating examples");
+
+				var dayExampleResults =
+					notSolvedDays.Select(x =>
+					{
+						var (day, part) = x;
+						var result = CheckExamples(part);
+						var status = result switch
+						{
+							ExampleCheckResult.AllCorrect => "[green bold]all correct[/]",
+							ExampleCheckResult.Failed failed => $"[red]failed {failed.FailedExamples.Count} examples[/]",
+							ExampleCheckResult.NoExamples => "[grey]no examples[/]",
+							ExampleCheckResult.NotImplemented => "[grey]not implemented[/]",
+							_ => throw new ArgumentOutOfRangeException()
+						};
+						AnsiConsole.MarkupLine($"Day {day.Num:00} Part {part.Num} - {status}");
+						return (day, part, result);
+					}).ToList();
+
+				var allExamplesCorrect = dayExampleResults
+					.Choose(x =>
+					{
+						var (day, part, result) = x;
+						return result is ExampleCheckResult.AllCorrect 
+							? (day, part).ToNullable()
+							: null;
+					}).ToList();
+
+				if (allExamplesCorrect.Count == 0)
+				{
+					AnsiConsole.MarkupLine(
+						"[green bold]There are no days that are not solved yet but implemented and worth trying to calculate and submit answers for.[/]");
+				}
+				else
+				{
+					AnsiConsole.MarkupLine(
+						$"Overall [yellow bold]{allExamplesCorrect.Count}[/] days and parts that are not solved but examples were " +
+						$"passed for. Worth trying to calculate and submit answers for them: " +
+						string.Join(", ", allExamplesCorrect.Select(x => $"[yellow bold]{x.day.Num:00}/{x.part.Num}[/]")));
+
+					foreach (var (day, part) in allExamplesCorrect)
+					{
+						ctx.Status($"Obtaining input for day {day.Num:00}");
+						var obtained = await client.LoadInput(Day.Create(day.Num));
+						var sw = Stopwatch.StartNew();
+						AnsiConsole.MarkupLine($"[[{day.Num:00}/{part.Num}]] :check_mark: Input obtained");
+						ctx.Status($"Calculating answer for {day.Num:00}/{part.Num}");
+						var answer = part.Part.SolveObtained(obtained);
+						AnsiConsole.MarkupLine(
+							$"[[{day.Num:00}/{part.Num}]] :check_mark: Answer '{answer}' calculated in {sw.Elapsed.ToHumanReadable()}");
+
+						ctx.Status($"Submitting answer '{answer}'");
+
+						await Submit();
+						async Task Submit()
+						{
+							var submissionResult = await client.SubmitAnswer(Day.Create(day.Num), Part.Create(part.Num), answer);
+							switch (submissionResult)
+							{
+								case SubmissionResult.Correct:
+									AnsiConsole.MarkupLine($"[[{day.Num:00}/{part.Num}]]");
+									AnsiConsole.Write(Renderables.Correct);
+									break;
+								case SubmissionResult.Incorrect:
+									AnsiConsole.MarkupLine($"[[{day.Num:00}/{part.Num}]]");
+									AnsiConsole.Write(Renderables.Incorrect("wrong"));
+									break;
+								case SubmissionResult.TooHigh:
+									AnsiConsole.MarkupLine($"[[{day.Num:00}/{part.Num}]]");
+									AnsiConsole.Write(Renderables.Incorrect("too high"));
+									break;
+								case SubmissionResult.TooLow:
+									AnsiConsole.MarkupLine($"[[{day.Num:00}/{part.Num}]]");
+									AnsiConsole.Write(Renderables.Incorrect("too low"));
+									break;
+								case SubmissionResult.TooRecently(var leftToWait):
+									AnsiConsole.MarkupLine($"[[{day.Num:00}/{part.Num}]] :timer_clock: Answer given too recently. Need to wait {leftToWait.ToHumanReadable()}");
+									var timeoutStopwatch = Stopwatch.StartNew();
+									while (timeoutStopwatch.Elapsed < leftToWait)
+									{
+										await Task.Delay(1000);
+										ctx.Status($"Waiting [yellow bold]{(leftToWait - timeoutStopwatch.Elapsed).ToHumanReadable()}[/] more before another attempt");
+									}
+									await Submit();
+									break;
+								default:
+									throw new ArgumentOutOfRangeException(nameof(submissionResult));
+							}
+						}
+
+					}
+				}
+
+				var failedExamples =
+					dayExampleResults.Choose(x =>
+					{
+						var (day, part, result) = x;
+						if (result is ExampleCheckResult.Failed failed)
+							return (day, part, failed).ToNullable();
+						return null;
+					}).ToList();
+
+				if (failedExamples.Count > 0)
+				{
+					AnsiConsole.MarkupLine("[yellow bold]Please revise failed examples[/]");
+
+					var table = new Table();
+					table.AddColumn("Day");
+					table.AddColumn("Part");
+					table.AddColumn("Example");
+					table.AddColumn("Expected");
+					table.AddColumn("Actual");
+					table.SimpleBorder();
+					foreach (var (day, part, failed) in failedExamples)
+					{
+						foreach (var (runnerExample, actual, exception) in failed.FailedExamples)
+						{
+							table.AddRow(day.Num.ToString("00"), part.Num.ToString(), 
+								runnerExample.Name,
+								runnerExample.Example.ExpectationFormatted,
+								$"[red]{Markup.Escape(exception?.Message ?? actual ?? "")}[/]");
+						}
+					}
+					AnsiConsole.Write(table);
+				}
+			});
+	}
+		
+	private abstract record ExampleCheckResult
+	{
+		private ExampleCheckResult(){ }
+		public record AllCorrect : ExampleCheckResult;
+		public record NotImplemented : ExampleCheckResult;
+		public record NoExamples : ExampleCheckResult;
+		public record Failed(IList<(NamedExample, string?, Exception?)> FailedExamples) : ExampleCheckResult;
+	}
+
+	private static ExampleCheckResult CheckExamples(RunnerPart part)
+	{
+		var examples = part.Part.GetExamples().ToList();
+		if (examples.Count == 0)
+			return new ExampleCheckResult.NoExamples();
+		IList<(NamedExample, string?, Exception?)> failedExamples = new List<(NamedExample, string?, Exception?)>();
+		foreach (var example in examples)
+		{
+			try
+			{
+				var actual = example.Example.RunFormat(out var actualFormatted);
+				if (!Equals(actual, example.Example.Expectation))
+					failedExamples.Add((example, actualFormatted, null));
+			}
+			catch (NotImplementedException)
+			{
+				return new ExampleCheckResult.NotImplemented();
+			}
+			catch (Exception e)
+			{
+				failedExamples.Add((example, null, e));
+			}
+		}
+		
+		if (failedExamples.Count == 0)
+			return new ExampleCheckResult.AllCorrect();
+		return new ExampleCheckResult.Failed(failedExamples);
+	}
+}
