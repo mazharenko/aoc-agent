@@ -29,7 +29,7 @@ jobs:
       - name: Build projects
         run: dotnet build -c Release -p:Version=${{ github.ref_name }}
       - name: Pack packages
-        run: dotnet paket pack ${{ env.NuGetDirectory }} -p:Version=${{ github.ref_name }}
+        run: dotnet paket pack ${{ env.NuGetDirectory }} --version ${{ github.ref_name }}
       - name: Publish NuGet package
         run: |
           foreach($file in (Get-ChildItem "${{ env.NuGetDirectory }}" -Recurse -Include *.nupkg)) {
