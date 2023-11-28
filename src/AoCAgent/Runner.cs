@@ -23,7 +23,7 @@ public class Runner
 		{
 			case (false, _, false):
 			case (true, "", false):
-				var newSessionValue = AnsiConsole.Ask<string>("Session key was not found. Please provide its value:");
+				var newSessionValue = AnsiConsole.Prompt(new TextPrompt<string>("Session key was not found. Please provide its value:").Secret());
 				File.WriteAllText(sessionCookieFileName, newSessionValue);
 				return newSessionValue;
 			case (false, _, true):
