@@ -33,7 +33,7 @@ A set of [C# source generators](https://learn.microsoft.com/en-us/dotnet/csharp/
    
     ```cs
     [GenerateEntryPoint]
-    partial class Year2022;
+    public partial class Year2022;
     ```
 
 4. Define day classes named like `DayXX`. Don't forget the `partial` keyword.
@@ -41,14 +41,14 @@ A set of [C# source generators](https://learn.microsoft.com/en-us/dotnet/csharp/
     ```cs
     partial class Day01
     {
-        partial class Part1
+        internal partial class Part1
         {
             public string Solve(string input)
             {
                 throw new NotImplementedException();
             }
         }
-        partial class Part2
+        internal partial class Part2
         {
             public string Solve(string input)
             {
