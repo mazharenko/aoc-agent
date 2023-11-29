@@ -61,8 +61,8 @@ A set of [C# source generators](https://learn.microsoft.com/en-us/dotnet/csharp/
     ```
 
 5. Run it once and provide the `session` cookie value from https://adventofcode.com/
-   
-    <video src="docs/session1.mp4" controls title="Title"></video>
+
+    https://github.com/mazharenko/aoc-agent/assets/5635071/e644c7b3-d458-4587-b4e5-f8bd8ff8c054
 
 6. Give examples and implementation.
    
@@ -85,7 +85,8 @@ A set of [C# source generators](https://learn.microsoft.com/en-us/dotnet/csharp/
 
 7. Run it again. It's supposed to be launched with `dotnet watch`. In this case, if any issues with the implementation are detected, it will automatically restart after code changes.
 
-    <video src="docs/demo1.mp4" controls title="Title"></video>
+    https://github.com/mazharenko/aoc-agent/assets/5635071/d18e2b33-a1c8-4d25-9ac0-89ed28fef2e2
+
 
 > [!NOTE]  
 > Multiple years within a single project, strongly typed inputs and answers, opting out of entry point generation are supported as well.
