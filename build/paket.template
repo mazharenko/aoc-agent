@@ -1,7 +1,7 @@
 type file
 id mazharenko.AoCAgent
 description
-  todo
+  A set of C# source generators to build an agent for your Advent of Code solutions - an application that downloads inputs and submits answers.
 readme docs/readme.md
 authors mazharenko
 repositoryUrl https://github.com/mazharenko/aoc-agent
