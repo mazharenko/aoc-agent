@@ -33,9 +33,7 @@ A set of [C# source generators](https://learn.microsoft.com/en-us/dotnet/csharp/
    
     ```cs
     [GenerateEntryPoint]
-    partial class Year2022
-    {
-    }
+    partial class Year2022;
     ```
 
 4. Define day classes named like `DayXX`. Don't forget the `partial` keyword.
@@ -109,9 +107,7 @@ A set of [C# source generators](https://learn.microsoft.com/en-us/dotnet/csharp/
 
     ```cs
     [GenerateTests]
-    internal partial class ExampleTests
-    {
-    }
+    internal partial class ExampleTests;
     ```
 
 4. The class now becomes a test fixture collecting examples from all the Days with a test method verifying them.
