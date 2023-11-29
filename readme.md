@@ -114,3 +114,7 @@ A set of [C# source generators](https://learn.microsoft.com/en-us/dotnet/csharp/
 
 > [!NOTE]  
 > Generating tests to check the solutions' answers for real inputs is not implemented at the moment.
+
+## Repository Templates
+
+[aoc-agent-template](https://github.com/mazharenko/aoc-agent-template) and [aoc-agent-template-multipleyears](https://github.com/mazharenko/aoc-agent-template-multipleyears) are prepared repository templates with all required references and 25 day drafts. The latter assumes that the repository will contain solutions for several years. 
