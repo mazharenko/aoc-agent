@@ -78,9 +78,7 @@ internal class AoCClient : IAoCClient
 	{
 		var response = await httpClient.GetStringAsync($"/{year}");
 		var statParsed = DayRegex.Matches(response);
-		if (statParsed.Count == 0)
-			throw new InvalidOperationException("Could not interpret days stat");
-
+		
 		foreach (Match match in statParsed)
 		{
 			var day = Day.Create(int.Parse(match.Groups["day"].Value));
