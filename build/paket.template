@@ -15,3 +15,4 @@ files
   ../src/AoCAgent.Generator.Attributes/bin/Release/netstandard2.0/mazharenko.AoCAgent.Generator.Attributes.dll ==> lib/net6.0
   ../src/AoCAgent.Generator.Attributes/bin/Release/netstandard2.0/mazharenko.AoCAgent.Generator.Attributes.dll ==> analyzers/dotnet/cs
   ../src/AoCAgent.Generator/bin/Release/netstandard2.0/mazharenko.AoCAgent.Generator.dll ==> analyzers/dotnet/cs
+  ../readme.md
