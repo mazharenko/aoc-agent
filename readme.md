@@ -11,7 +11,7 @@ A set of [C# source generators](https://learn.microsoft.com/en-us/dotnet/csharp/
 2. Checks if a day's solution meets the specified examples.
 3. Downloads input, performs calculations, and submits the answers.
 4. Generates NUnit tests for the implemented solutions.
-5. Caches everything so that does not hurt AoC servers much.
+5. Caches everything so that does not hurt AoC servers much and you don't get penalties for submitting the same incorrect answers.
 
 ## What is Does Not
 
