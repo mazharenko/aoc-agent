@@ -50,6 +50,14 @@ internal partial class DaysGenerator
 
 	private static IEnumerable<MemberDeclarationSyntax> GeneratePartMembers(PartSource part)
 	{
+		yield return ParseMemberDeclaration(
+			$$"""
+			public override Settings Settings { get; } = new Settings 
+				{
+					BypassNoExamples = {{(part.BypassNoExamples ? "true" : "false")}}
+				};
+			""")!;
+		
 		if (part.IsStringInput)
 		{
 			yield return ParseMemberDeclaration(

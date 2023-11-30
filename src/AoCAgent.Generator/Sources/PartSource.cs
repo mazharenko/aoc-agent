@@ -9,10 +9,10 @@ internal readonly record struct PartSource(
 	ITypeSymbol InputType,
 	bool IsStringInput,
 	ITypeSymbol ResType,
-	bool IsStringRes
+	bool IsStringRes,
+	bool BypassNoExamples
 )
 {
-
 	public bool Equals(PartSource other)
 	{
 		return PartClass.Equals(other.PartClass) 
@@ -20,7 +20,8 @@ internal readonly record struct PartSource(
 		       && SymbolEqualityComparer.Default.Equals(InputType, other.InputType)
 		       && IsStringInput == other.IsStringInput
 		       && SymbolEqualityComparer.Default.Equals(ResType, other.ResType)
-		       && IsStringRes == other.IsStringRes;
+		       && IsStringRes == other.IsStringRes
+		       && BypassNoExamples == other.BypassNoExamples;
 	}
 
 	public override int GetHashCode()
@@ -33,6 +34,7 @@ internal readonly record struct PartSource(
 			hashCode = (hashCode * 397) ^ IsStringInput.GetHashCode();
 			hashCode = (hashCode * 397) ^ SymbolEqualityComparer.Default.GetHashCode(ResType);
 			hashCode = (hashCode * 397) ^ IsStringRes.GetHashCode();
+			hashCode = (hashCode * 397) ^ BypassNoExamples.GetHashCode();
 			return hashCode;
 		}
 	}

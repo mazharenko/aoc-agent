@@ -112,20 +112,28 @@ internal partial class DaysGenerator : IIncrementalGenerator
 								.FirstOrDefault(part => part.Identifier.ValueText == name);
 							if (partClass is null) return null;
 							var partType = c.SemanticModel.GetDeclaredSymbol(partClass)!;
+							var dayType = c.SemanticModel.GetDeclaredSymbol(c.Node)!;
 							var solve = partType.GetMembers("Solve").OfType<IMethodSymbol>().FirstOrDefault();
 
 							var stringType = c.SemanticModel.Compilation.GetSpecialType(SpecialType.System_String);
+
+							var skipNoExamplesAttribute = c.SemanticModel.Compilation.GetTypeByMetadataName(typeof(BypassNoExamplesAttribute).FullName!)!;
+							var skipNoExamples =
+								partType.GetAttributes()
+									.Any(a => SymbolEqualityComparer.Default.Equals(skipNoExamplesAttribute, a.AttributeClass))
+								|| dayType.GetAttributes()
+									.Any(a => SymbolEqualityComparer.Default.Equals(skipNoExamplesAttribute, a.AttributeClass));
 							
 							if (solve is null)
-								return new PartSource(partClass, partType, stringType, true, stringType, true);
+								return new PartSource(partClass, partType, stringType, true, stringType, true, skipNoExamples);
 							var resType = solve.ReturnType;
 							var solveParameter = solve.Parameters.FirstOrDefault();
 							if (solveParameter is null)
 								return new PartSource(partClass, partType, stringType, true, resType,
-									SymbolEqualityComparer.Default.Equals(stringType, resType));
+									SymbolEqualityComparer.Default.Equals(stringType, resType), skipNoExamples);
 							return new PartSource(partClass, partType, solveParameter.Type,
 								SymbolEqualityComparer.Default.Equals(stringType, solveParameter.Type), resType,
-								SymbolEqualityComparer.Default.Equals(stringType, resType));
+								SymbolEqualityComparer.Default.Equals(stringType, resType), skipNoExamples);
 						}
 					}
 				).Choose(d => d)

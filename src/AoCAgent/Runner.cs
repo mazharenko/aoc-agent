@@ -91,6 +91,7 @@ public class Runner
 						var status = result switch
 						{
 							ExampleCheckResult.AllCorrect => "[green bold]all correct[/]",
+							ExampleCheckResult.SkipNoExamples => "[green bold]no examples[/]",
 							ExampleCheckResult.Failed failed => $"[red]failed {failed.FailedExamples.Count} examples[/]",
 							ExampleCheckResult.NoExamples => "[grey]no examples[/]",
 							ExampleCheckResult.NotImplemented => "[grey]not implemented[/]",
@@ -104,7 +105,7 @@ public class Runner
 					.Choose(x =>
 					{
 						var (day, part, result) = x;
-						return result is ExampleCheckResult.AllCorrect 
+						return result is ExampleCheckResult.AllCorrect or ExampleCheckResult.SkipNoExamples
 							? (day, part).ToNullable()
 							: null;
 					}).ToList();
@@ -215,12 +216,15 @@ public class Runner
 		public record AllCorrect : ExampleCheckResult;
 		public record NotImplemented : ExampleCheckResult;
 		public record NoExamples : ExampleCheckResult;
+		public record SkipNoExamples : ExampleCheckResult;
 		public record Failed(IList<(NamedExample, string?, Exception?)> FailedExamples) : ExampleCheckResult;
 	}
 
 	private static ExampleCheckResult CheckExamples(RunnerPart part)
 	{
 		var examples = part.Part.GetExamples().ToList();
+		if (examples.Count == 0 && part.Part.Settings.BypassNoExamples)
+			return new ExampleCheckResult.SkipNoExamples();
 		if (examples.Count == 0)
 			return new ExampleCheckResult.NoExamples();
 		IList<(NamedExample, string?, Exception?)> failedExamples = new List<(NamedExample, string?, Exception?)>();
