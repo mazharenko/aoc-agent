@@ -5,7 +5,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
-using Trivia = mazharenko.AoCAgent.Generator.Mics.Trivia;
 
 namespace mazharenko.AoCAgent.Generator;
 
