@@ -105,17 +105,29 @@ A set of [C# source generators](https://learn.microsoft.com/en-us/dotnet/csharp/
     </PropertyGroup>
     ```
 
-3. Define a class decorated with the `[GenerateTests]` attribute.
+3. Define a class decorated with the `[GenerateExampleTests]` attribute.
 
     ```cs
-    [GenerateTests]
+    [GenerateExampleTests]
     internal partial class ExampleTests;
     ```
 
 4. The class now becomes a test fixture collecting examples from all the Days with a test method verifying them.
 
-> [!NOTE]  
-> Generating tests to check the solutions' answers for real inputs is not implemented at the moment.
+5. Define a class decorated with the `[GenerateInputTests]` attribute and provide your answers to puzzles. This will also require to manually download your personal inputs.
+
+    ```cs
+    [GenerateInputTests(nameof(GetCases))]
+    internal partial class InputTests
+    {
+        private static IEnumerable<PartInputCaseData> GetCases()
+        {
+            yield return new (1, 1, "56049");
+        }
+    }
+    ```
+
+6. The class now becomes a test fixture verifying the solutions using inputs from files.
 
 ## Repository Templates
 
