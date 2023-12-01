@@ -32,7 +32,7 @@ public class Runner
 			case (true, "", true):
 				throw new Exception("Session key value was not found");
 			case (true, var foundValue, _):
-				return foundValue;
+				return foundValue.Trim();
 		}
 	}
 
