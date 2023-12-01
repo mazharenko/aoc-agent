@@ -5,7 +5,7 @@ namespace mazharenko.AoCAgent.Generator;
 
 [AttributeUsage(AttributeTargets.Class)]
 [PublicAPI]
-public class GenerateTestsAttribute : Attribute
+public class GenerateExampleTestsAttribute : Attribute
 {
 	
 }
