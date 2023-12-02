@@ -129,7 +129,7 @@ public class Runner
 						var sw = Stopwatch.StartNew();
 						AnsiConsole.MarkupLine($"[[{day.Num:00}/{part.Num}]] :check_mark: Input obtained");
 						ctx.Status($"Calculating answer for {day.Num:00}/{part.Num}");
-						var answer = part.Part.SolveObtained(obtained);
+						var answer = part.Part.SolveString(obtained);
 						AnsiConsole.MarkupLine(
 							$"[[{day.Num:00}/{part.Num}]] :check_mark: Answer '{answer}' calculated in {sw.Elapsed.ToHumanReadable()}");
 

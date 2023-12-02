@@ -101,7 +101,7 @@ internal class TestsGenerator : IIncrementalGenerator
 			  			throw new InconclusiveException($"{inputPath} file was not found");
 			  
 			  		var input = File.ReadAllText(inputPath);
-			  		var result = part.SolveObtained(input);
+			  		var result = part.SolveString(input);
 			  		return result;
 			  }
 

@@ -21,9 +21,12 @@ internal partial class DaysGenerator
 				.AddAttributeLists(CodeGeneratedAttribute.AsSyntax)
 				.AddModifiers(
 					Token(SyntaxKind.PartialKeyword)
-				).AddMembers(
-					GeneratePartBaseDeclaration("Part1", day.Part1),
-					GeneratePartBaseDeclaration("Part2", day.Part2)
+				).WithMembers(
+					List(
+						GeneratePartDeclarations("Part1", day.Part1)
+							.Concat(GeneratePartDeclarations("Part2", day.Part2))
+							.Cast<MemberDeclarationSyntax>()
+					)
 				);
 		var newRoot =
 			CompilationUnit()
@@ -52,25 +55,17 @@ internal partial class DaysGenerator
 	{
 		yield return ParseMemberDeclaration(
 			$$"""
-			public override Settings Settings { get; } = new Settings 
+			public Settings Settings { get; } = new Settings 
 				{
 					BypassNoExamples = {{(part.BypassNoExamples ? "true" : "false")}}
 				};
 			""")!;
 		
-		if (part.IsStringInput)
-		{
-			yield return ParseMemberDeclaration(
-				$"""
-				public {part.InputType.ToDisplayString()} ParseObtained(string input) => input.Trim();
-				""")!;
-		}
-
 		if (part.IsStringRes && part.ResType.NullableAnnotation != NullableAnnotation.Annotated)
 		{
 			yield return ParseMemberDeclaration(
 				"""
-				public sealed override string Format(string res) => res;
+				public override string Format(string res) => res;
 				"""
 			)!;
 		}
@@ -85,7 +80,7 @@ internal partial class DaysGenerator
 			yield return MethodDeclaration(
 					ParseTypeName("System.Collections.Generic.IEnumerable<NamedExample>"),
 					Identifier("GetExamples")
-				).AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.OverrideKeyword))
+				).AddModifiers(Token(SyntaxKind.PublicKeyword))
 				.WithBody(Block(
 					YieldStatement(SyntaxKind.YieldBreakStatement)
 				));
@@ -93,7 +88,7 @@ internal partial class DaysGenerator
 			yield return MethodDeclaration(
 					ParseTypeName("System.Collections.Generic.IEnumerable<NamedExample>"),
 					Identifier("GetExamples")
-				).AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.OverrideKeyword))
+				).AddModifiers(Token(SyntaxKind.PublicKeyword))
 				.WithBody(Block(
 					List(
 						examples.Select(exampleVariable =>
@@ -121,21 +116,21 @@ internal partial class DaysGenerator
 		
 		yield return ParseMemberDeclaration(
 			"""
-			public sealed override string SolveObtained(string input)
+			public string SolveString(string input)
 			{
-				return Format(Solve(ParseObtained(input)));
+				return Format(Solve(Parse(input)));
 			}
 			"""
 		)!;
 		yield return ParseMemberDeclaration(
 			$$"""
-			private record Example({{part.InputType.ToDisplayString()}} Input, {{part.ResType.ToDisplayString()}} Expectation) : IExample<{{part.ResType.ToDisplayString()}}>
+			private record Example(string Input, {{part.ResType.ToDisplayString()}} Expectation) : IExample<{{part.ResType.ToDisplayString()}}>
 			{
 				private string expectationFormatted = null!;
 				private static {{part.PartType.ToDisplayString()}} part = new {{part.PartType.ToDisplayString()}}();
 				public {{part.ResType.ToDisplayString()}} Run()
 				{
-					return part.Solve(Input);
+					return part.Solve(part.Parse(Input));
 				}
 				public {{part.ResType.ToDisplayString()}} RunFormat(out string formatted)
 				{
@@ -148,28 +143,64 @@ internal partial class DaysGenerator
 			"""
 		)!;
 	}
-	private static ClassDeclarationSyntax GeneratePartBaseDeclaration(string identifier, PartSource part)
+
+	private static IEnumerable<MemberDeclarationSyntax> GenerateIPartMembers(PartSource part)
 	{
-		return ClassDeclaration(identifier)
+		yield return ParseMemberDeclaration(
+			$$"""
+			 {{part.ResType.ToDisplayString()}} Solve({{part.InputType.ToDisplayString()}} input);
+			 """
+		)!;
+		
+		yield return ParseMemberDeclaration(
+			$$"""
+			  {{part.InputType.ToDisplayString()}} Parse(string input);
+			  """
+		)!;
+	}
+
+	private static IEnumerable<MemberDeclarationSyntax> GeneratePartBaseMembers(PartSource part)
+	{
+		yield return ParseMemberDeclaration(
+			$$"""
+			  public virtual string Format({{part.ResType.ToDisplayString()}} res) => res!.ToString()!;
+			  """
+		)!;
+		
+		if (part.IsStringInput)
+		{
+			yield return ParseMemberDeclaration(
+				$"""
+				public virtual {part.InputType.ToDisplayString()} Parse(string input) => input.Trim();
+				""")!;
+		}
+
+	}
+	
+	private static IEnumerable<TypeDeclarationSyntax> GeneratePartDeclarations(string identifier, PartSource part)
+	{
+		yield return InterfaceDeclaration($"I{identifier}")
+			.AddModifiers(Token(SyntaxKind.PrivateKeyword))
+			.AddBaseListTypes(SimpleBaseType(IdentifierName("IPart")))
+			.WithMembers(
+				List(GenerateIPartMembers(part))
+			);
+		yield return ClassDeclaration($"{identifier}Base")
+			.AddModifiers(Token(SyntaxKind.AbstractKeyword))
+			.AddModifiers(part.PartClass.Modifiers.Where(m =>
+				m.Kind() is SyntaxKind.PublicKeyword
+					or SyntaxKind.ProtectedKeyword
+					or SyntaxKind.PrivateKeyword
+					or SyntaxKind.InternalKeyword
+			).ToArray())
+			.WithMembers(
+				List(GeneratePartBaseMembers(part))
+			);
+		yield return ClassDeclaration(identifier)
 			.AddModifiers(Token(SyntaxKind.PartialKeyword))
 			.AddBaseListTypes(
-				SimpleBaseType(
-					GenericName(Identifier("PartBase"), TypeArgumentList(
-						SeparatedList(new[]
-						{
-							ParseTypeName(part.InputType.ToDisplayString()),
-							ParseTypeName(part.ResType.ToDisplayString())
-						})
-					))
-				), SimpleBaseType(
-					GenericName(Identifier("IPart"), TypeArgumentList(
-						SeparatedList(new[]
-						{
-							ParseTypeName(part.InputType.ToDisplayString()),
-							ParseTypeName(part.ResType.ToDisplayString())
-						})
-					))
-				)
+				SimpleBaseType(IdentifierName($"{identifier}Base")),
+				SimpleBaseType(IdentifierName($"I{identifier}"))
 			).WithMembers(
 				List(
 					GeneratePartMembers(part)
