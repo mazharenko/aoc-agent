@@ -124,15 +124,15 @@ internal partial class DaysGenerator
 		)!;
 		yield return ParseMemberDeclaration(
 			$$"""
-			private record Example(string Input, {{part.ResType.ToDisplayString()}} Expectation) : IExample<{{part.ResType.ToDisplayString()}}>
+			private record Example(string Input, {{part.ResType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} Expectation) : IExample<{{part.ResType.ToDisplayString()}}>
 			{
 				private string expectationFormatted = null!;
-				private static {{part.PartType.ToDisplayString()}} part = new {{part.PartType.ToDisplayString()}}();
-				public {{part.ResType.ToDisplayString()}} Run()
+				private static {{part.PartType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} part = new {{part.PartType.ToDisplayString()}}();
+				public {{part.ResType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} Run()
 				{
 					return part.Solve(part.Parse(Input));
 				}
-				public {{part.ResType.ToDisplayString()}} RunFormat(out string formatted)
+				public {{part.ResType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} RunFormat(out string formatted)
 				{
 					var res = Run();
 					formatted = part.Format(res);
@@ -148,13 +148,13 @@ internal partial class DaysGenerator
 	{
 		yield return ParseMemberDeclaration(
 			$$"""
-			 {{part.ResType.ToDisplayString()}} Solve({{part.InputType.ToDisplayString()}} input);
+			 {{part.ResType.ToDisplayString()}} Solve({{part.InputType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} input);
 			 """
 		)!;
 		
 		yield return ParseMemberDeclaration(
 			$$"""
-			  {{part.InputType.ToDisplayString()}} Parse(string input);
+			  {{part.InputType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} Parse(string input);
 			  """
 		)!;
 	}
@@ -163,7 +163,7 @@ internal partial class DaysGenerator
 	{
 		yield return ParseMemberDeclaration(
 			$$"""
-			  public virtual string Format({{part.ResType.ToDisplayString()}} res) => res!.ToString()!;
+			  public virtual string Format({{part.ResType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} res) => res!.ToString()!;
 			  """
 		)!;
 		
@@ -171,7 +171,7 @@ internal partial class DaysGenerator
 		{
 			yield return ParseMemberDeclaration(
 				$"""
-				public virtual {part.InputType.ToDisplayString()} Parse(string input) => input.Trim();
+				public virtual {part.InputType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} Parse(string input) => input.Trim();
 				""")!;
 		}
 
