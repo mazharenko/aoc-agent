@@ -1,0 +1,1 @@
+https://github.com/mazharenko/aoc-agent/wiki
