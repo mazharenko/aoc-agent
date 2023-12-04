@@ -10,4 +10,4 @@
 
 ## Advanced features
 
-[Not providing examples](Advanced/Not-providing-examples)
+[Not providing examples](Not-providing-examples)
