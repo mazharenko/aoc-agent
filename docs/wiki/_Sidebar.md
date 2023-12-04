@@ -2,7 +2,7 @@
 
 ## Building the Agent
 
-[Introduction](Building_Introduction)
+[Introduction](Building/Introduction)
 
 ## Running the Agent
 
@@ -10,4 +10,4 @@
 
 ## Advanced features
 
-[Not providing examples](Not-providing-examples)
+[Not providing examples](Advanced/Not-providing-examples)
