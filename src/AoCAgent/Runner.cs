@@ -110,6 +110,7 @@ public class Runner
 							: null;
 					}).ToList();
 
+				var atLeastOneCorrectAnswer = false;
 				if (allExamplesCorrect.Count == 0)
 				{
 					AnsiConsole.MarkupLine(
@@ -144,6 +145,7 @@ public class Runner
 								case SubmissionResult.Correct:
 									AnsiConsole.MarkupLine($"[[{day.Num:00}/{part.Num}]]");
 									AnsiConsole.Write(Renderables.Correct);
+									atLeastOneCorrectAnswer = true;
 									break;
 								case SubmissionResult.Incorrect:
 									AnsiConsole.MarkupLine($"[[{day.Num:00}/{part.Num}]]");
@@ -206,6 +208,12 @@ public class Runner
 						}
 					}
 					AnsiConsole.Write(table);
+				}
+				else if (atLeastOneCorrectAnswer)
+				{
+					var stats = await client.GetDayResults();
+					var stars = stats.Sum(x => x.Value ? 1 : 0);
+					AnsiConsole.Write(Renderables.Splash(year.Year, stars));
 				}
 			});
 	}
