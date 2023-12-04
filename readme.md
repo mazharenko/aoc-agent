@@ -1,5 +1,6 @@
 [![Nuget package](https://img.shields.io/nuget/v/mazharenko.AoCAgent.svg?logo=nuget)](https://www.nuget.org/packages/mazharenko.AoCAgent/) 
 [![License: MIT](https://img.shields.io/badge/License-MIT-lightgrey.svg)](LICENSE)
+[![Wiki](https://img.shields.io/badge/wiki-documentation-forestgreen)](https://github.com/mazharenko/aoc-agent/wiki)
 
 # Advent of Code Agent
 
@@ -38,33 +39,7 @@ A set of [C# source generators](https://learn.microsoft.com/en-us/dotnet/csharp/
     public partial class Year2022;
     ```
 
-4. Define day classes named like `DayXX`. Don't forget the `partial` keyword.
-   
-    ```cs
-    partial class Day01
-    {
-        internal partial class Part1
-        {
-            public string Solve(string input)
-            {
-                throw new NotImplementedException();
-            }
-        }
-        internal partial class Part2
-        {
-            public string Solve(string input)
-            {
-                throw new NotImplementedException();
-            }
-        }
-    }
-    ```
-
-5. Run it once and provide the `session` cookie value from https://adventofcode.com/
-
-    https://github.com/mazharenko/aoc-agent/assets/5635071/e644c7b3-d458-4587-b4e5-f8bd8ff8c054
-
-6. Give examples and implementation.
+4. Define day classes named like `DayXX`. Don't forget the `partial` keyword. Provide examples and implementation.
    
     ```cs
     partial class Day01
@@ -73,7 +48,7 @@ A set of [C# source generators](https://learn.microsoft.com/en-us/dotnet/csharp/
         {
             private readonly Example example1 = new("input", "expectation");
             private readonly Example example2 = new("input", "expectation");
-
+        
             public string Solve(string input)
             {
                 return "expectation";
@@ -83,7 +58,11 @@ A set of [C# source generators](https://learn.microsoft.com/en-us/dotnet/csharp/
     }
     ```
 
-7. Run it again. It's supposed to be launched with `dotnet watch`. In this case, if any issues with the implementation are detected, it will automatically restart after code changes.
+5. When run for the first time, it requests the `session` cookie value from https://adventofcode.com/
+
+    https://github.com/mazharenko/aoc-agent/assets/5635071/e644c7b3-d458-4587-b4e5-f8bd8ff8c054
+
+6. It's supposed to be launched with `dotnet watch`. In this case, if any issues with the implementation are detected, it will automatically restart after code changes.
 
     https://github.com/mazharenko/aoc-agent/assets/5635071/d18e2b33-a1c8-4d25-9ac0-89ed28fef2e2
 
