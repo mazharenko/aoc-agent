@@ -2,7 +2,7 @@
 
 ## Building the Agent
 
-[Introduction](Building/Introduction)
+[Introduction](Introduction)
 
 ## Running the Agent
 
