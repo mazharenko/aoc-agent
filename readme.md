@@ -68,7 +68,7 @@ A set of [C# source generators](https://learn.microsoft.com/en-us/dotnet/csharp/
 
 
 > [!NOTE]  
-> Multiple years within a single project, strongly typed inputs and answers, opting out of entry point generation, [not providing examples](https://github.com/mazharenko/aoc-agent/wiki/Not-providing-examples) are supported as well.
+> Multiple years within a single project, [strongly typed inputs and answers](https://github.com/mazharenko/aoc-agent/wiki/Introduction#3-types), opting out of entry point generation, [not providing examples](https://github.com/mazharenko/aoc-agent/wiki/Not-providing-examples) are supported as well.
 
 ## Tests Generation
 
