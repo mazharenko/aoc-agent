@@ -103,3 +103,26 @@ partial class Day01
 }
 
 ```
+
+## 4. This is not enough
+
+A few questions must be answered before moving on. Depending on one's preferences, further actions might differ.
+
+1. Do you want the library to generate the Entry point for you? 
+
+   An agent is a console application. Its entry point is supposed to call all the running logic. The entry point can be generated automatically or written manually.
+
+2. Do you follow the repo-per-year scheme or have a single repository for all the Advent of Code events?
+
+   How days are discovered and associated with years needs a bit more attention for the latter.
+
+
+Follow the link which answers these question best.
+
+[Entry point generation, Single year in project](Entry-point-generation,-Single-year-in-project)
+
+[Entry point generation, Multiple years in project](Entry-point-generation,-Multiple-years-in-project)
+
+[Manual Entry point, Single year in project](Manual-Entry-point,-Single-year-in-project)
+
+[Manual Entry point, Multiple years in project](Manual-Entry-point,-Multiple-years-in-project)
