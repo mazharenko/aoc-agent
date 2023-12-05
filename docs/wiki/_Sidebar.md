@@ -4,6 +4,11 @@
 
 [Introduction](Introduction)
 
+[Entry point generation, Single year in project](Entry-point-generation,-Single-year-in-project)\
+[Entry point generation, Multiple years in project](Entry-point-generation,-Multiple-years-in-project)\
+[Manual Entry point, Single year in project](Manual-Entry-point,-Single-year-in-project)\
+[Manual Entry point, Multiple years in project](Manual-Entry-point,-Multiple-years-in-project)
+
 ## Running the Agent
 
 ## Generating Tests
