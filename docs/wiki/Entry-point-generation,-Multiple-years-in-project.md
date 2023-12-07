@@ -14,8 +14,10 @@ namespace aoc.Year2023.day01
 
 The rule is simple: any segment in a namespace identifier must fit the `YearXXXX` pattern.
 
-For each year the generator now will generate corresponding classes. Pass the desired one to the `Runner.Run` method in your entry point.
+To describe which year should be run by the agent, mention this year again anywhere in the project with the `[GenerateEntryPoint]` attribute
+
 
 ```cs
-await new mazharenko.AoCAgent.Runner().Run(new Year2023());
+[GenerateEntryPoint]
+public partial class Year2023;
 ```
