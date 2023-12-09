@@ -1,4 +1,4 @@
-Sometimes the input is relatively small but way too tough to parse automatically. You can decorate a day or a part with the `[ManualInput]` attribute and not waste precious time on implementing the `Parse` method. Instead, the internal types will be generated in a way so that the compiler will require to implement the `ManualInput` method.
+Sometimes an input is relatively small but way too tough to parse automatically. You can decorate a day or a part with the `[ManualInput]` attribute and not waste precious time on implementing the `Parse` method. Instead, the internal types will be generated in a way so that the compiler will require to implement the `ManualInput` method.
 
 Compare:
 
@@ -32,6 +32,7 @@ internal partial class Part1
             (30, 200)
           }, 288);
     // ManualInput's output is the same as Solve's input
+    // return your real input here
     public (long, long)[] ManualInput() => new[]
     {
         (41, 249),
@@ -39,12 +40,10 @@ internal partial class Part1
         (70, 1127),
         (96, 1011)
     };
-    // No Parse's method
+    // No Parse method
     public int Solve((long, long)[] input) => ...;
    
 }
-
-
 ```
 
 
