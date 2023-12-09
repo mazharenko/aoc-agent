@@ -15,4 +15,6 @@
 
 ## Advanced features
 
-[Not providing examples](Not-providing-examples)
+[Not providing examples](Not-providing-examples)\
+[Manual input](Manual-input)\
+[Manual interpretation](Manial-interpretation)
