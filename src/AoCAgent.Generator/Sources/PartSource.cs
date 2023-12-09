@@ -14,7 +14,9 @@ internal readonly record struct PartSource()
 		       && SymbolEqualityComparer.Default.Equals(ResType, other.ResType)
 		       && IsStringRes == other.IsStringRes
 		       && BypassNoExamples == other.BypassNoExamples
-		       && ManualInput == other.ManualInput;
+		       && ManualInput == other.ManualInput
+		       && ManualInterpretation == other.ManualInterpretation
+		       ;
 	}
 
 	public override int GetHashCode()
@@ -29,6 +31,7 @@ internal readonly record struct PartSource()
 			hashCode = (hashCode * 397) ^ IsStringRes.GetHashCode();
 			hashCode = (hashCode * 397) ^ BypassNoExamples.GetHashCode();
 			hashCode = (hashCode * 397) ^ ManualInput.GetHashCode();
+			hashCode = (hashCode * 397) ^ ManualInterpretation.GetHashCode();
 			return hashCode;
 		}
 	}
@@ -41,4 +44,5 @@ internal readonly record struct PartSource()
 	public required bool IsStringRes { get; init; }
 	public required bool BypassNoExamples { get; init; }
 	public required bool ManualInput { get; init; }
+	public required bool ManualInterpretation { get; init; }
 }

@@ -57,7 +57,8 @@ internal partial class DaysGenerator
 			$$"""
 			public Settings Settings { get; } = new Settings 
 				{
-					BypassNoExamples = {{(part.BypassNoExamples ? "true" : "false")}}
+					BypassNoExamples = {{(part.BypassNoExamples ? "true" : "false")}},
+					ManualInterpretation = {{(part.ManualInterpretation ? "true" : "false")}}
 				};
 			""")!;
 		

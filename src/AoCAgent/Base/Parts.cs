@@ -23,4 +23,7 @@ public class Settings
 {
 	[UsedImplicitly]
 	public required bool BypassNoExamples { get; init; }
+	
+	[UsedImplicitly]
+	public required bool ManualInterpretation { get; init; }
 }

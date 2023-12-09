@@ -129,6 +129,7 @@ internal partial class DaysGenerator : IIncrementalGenerator
 
 							var skipNoExamples = HasAttribute(c, partType, dayType, typeof(BypassNoExamplesAttribute));
 							var manualInput = HasAttribute(c, partType, dayType, typeof(ManualInputAttribute));
+							var manualInterpretation = HasAttribute(c, partType, dayType, typeof(ManualInterpretationAttribute));
 
 							if (solve is null)
 								return new PartSource
@@ -140,7 +141,8 @@ internal partial class DaysGenerator : IIncrementalGenerator
 									ResType = stringType,
 									IsStringRes = true,
 									BypassNoExamples = skipNoExamples,
-									ManualInput = manualInput
+									ManualInput = manualInput,
+									ManualInterpretation = manualInterpretation
 								};
 							var resType = solve.ReturnType;
 							var solveParameter = solve.Parameters.FirstOrDefault();
@@ -154,7 +156,8 @@ internal partial class DaysGenerator : IIncrementalGenerator
 									ResType = resType,
 									IsStringRes = SymbolEqualityComparer.Default.Equals(stringType, resType),
 									BypassNoExamples = skipNoExamples,
-									ManualInput = manualInput
+									ManualInput = manualInput,
+									ManualInterpretation = manualInterpretation
 								};
 							return new PartSource
 							{
@@ -165,7 +168,8 @@ internal partial class DaysGenerator : IIncrementalGenerator
 								ResType = resType,
 								IsStringRes = SymbolEqualityComparer.Default.Equals(stringType, resType),
 								BypassNoExamples = skipNoExamples,
-								ManualInput = manualInput
+								ManualInput = manualInput,
+								ManualInterpretation = manualInterpretation
 							};
 						}
 					}
