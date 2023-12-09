@@ -115,22 +115,26 @@ internal partial class DaysGenerator
 				));
 		
 		yield return ParseMemberDeclaration(
-			"""
+			$$"""
 			public string SolveString(string input)
 			{
-				return Format(Solve(Parse(input)));
+				var parsedInput = {{(part.ManualInput ? "ManualInput()" : "Parse(input)")}};
+				return Format(Solve(parsedInput));
 			}
 			"""
 		)!;
+
+		var exampleInputType = part.ManualInput ? part.InputType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) : "string";
 		yield return ParseMemberDeclaration(
 			$$"""
-			private record Example(string Input, {{part.ResType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} Expectation) : IExample<{{part.ResType.ToDisplayString()}}>
+			private record Example({{exampleInputType}} Input, {{part.ResType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} Expectation) : IExample<{{part.ResType.ToDisplayString()}}>
 			{
 				private string expectationFormatted = null!;
 				private static {{part.PartType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} part = new {{part.PartType.ToDisplayString()}}();
 				public {{part.ResType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} Run()
 				{
-					return part.Solve(part.Parse(Input));
+					var parsedInput = {{(part.ManualInput ? "Input" : "part.Parse(Input)")}};
+					return part.Solve(parsedInput);
 				}
 				public {{part.ResType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} RunFormat(out string formatted)
 				{
@@ -151,12 +155,19 @@ internal partial class DaysGenerator
 			 {{part.ResType.ToDisplayString()}} Solve({{part.InputType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} input);
 			 """
 		)!;
-		
-		yield return ParseMemberDeclaration(
-			$$"""
-			  {{part.InputType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} Parse(string input);
-			  """
-		)!;
+
+		if (!part.ManualInput)
+			yield return ParseMemberDeclaration(
+				$$"""
+				  {{part.InputType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} Parse(string input);
+				  """
+			)!;
+		else
+			yield return ParseMemberDeclaration(
+				$$"""
+				{{part.InputType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} ManualInput();
+				"""
+			)!;
 	}
 
 	private static IEnumerable<MemberDeclarationSyntax> GeneratePartBaseMembers(PartSource part)
@@ -167,7 +178,7 @@ internal partial class DaysGenerator
 			  """
 		)!;
 		
-		if (part.IsStringInput)
+		if (part is { ManualInput: false, IsStringInput: true })
 		{
 			yield return ParseMemberDeclaration(
 				$"""

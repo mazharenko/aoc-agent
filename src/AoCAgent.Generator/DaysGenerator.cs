@@ -26,6 +26,16 @@ internal partial class DaysGenerator : IIncrementalGenerator
 		return null;
 	}
 
+	private static bool HasAttribute(GeneratorSyntaxContext c, INamedTypeSymbol partType, ISymbol dayType, Type attributeType)
+	{
+		var attributeSymbol = c.SemanticModel.Compilation.GetTypeByMetadataName(attributeType.FullName!)!;
+		return partType.GetAttributes()
+				.Any(a => SymbolEqualityComparer.Default.Equals(attributeSymbol, a.AttributeClass))
+			|| dayType.GetAttributes()
+				.Any(a => SymbolEqualityComparer.Default.Equals(attributeSymbol, a.AttributeClass));
+	}
+
+
 	public void Initialize(IncrementalGeneratorInitializationContext context)
 	{
 		var generateAgentProvider = context.GenerateAgentProvider();
@@ -117,23 +127,46 @@ internal partial class DaysGenerator : IIncrementalGenerator
 
 							var stringType = c.SemanticModel.Compilation.GetSpecialType(SpecialType.System_String);
 
-							var skipNoExamplesAttribute = c.SemanticModel.Compilation.GetTypeByMetadataName(typeof(BypassNoExamplesAttribute).FullName!)!;
-							var skipNoExamples =
-								partType.GetAttributes()
-									.Any(a => SymbolEqualityComparer.Default.Equals(skipNoExamplesAttribute, a.AttributeClass))
-								|| dayType.GetAttributes()
-									.Any(a => SymbolEqualityComparer.Default.Equals(skipNoExamplesAttribute, a.AttributeClass));
-							
+							var skipNoExamples = HasAttribute(c, partType, dayType, typeof(BypassNoExamplesAttribute));
+							var manualInput = HasAttribute(c, partType, dayType, typeof(ManualInputAttribute));
+
 							if (solve is null)
-								return new PartSource(partClass, partType, stringType, true, stringType, true, skipNoExamples);
+								return new PartSource
+								{
+									PartClass = partClass,
+									PartType = partType,
+									InputType = stringType,
+									IsStringInput = true,
+									ResType = stringType,
+									IsStringRes = true,
+									BypassNoExamples = skipNoExamples,
+									ManualInput = manualInput
+								};
 							var resType = solve.ReturnType;
 							var solveParameter = solve.Parameters.FirstOrDefault();
 							if (solveParameter is null)
-								return new PartSource(partClass, partType, stringType, true, resType,
-									SymbolEqualityComparer.Default.Equals(stringType, resType), skipNoExamples);
-							return new PartSource(partClass, partType, solveParameter.Type,
-								SymbolEqualityComparer.Default.Equals(stringType, solveParameter.Type), resType,
-								SymbolEqualityComparer.Default.Equals(stringType, resType), skipNoExamples);
+								return new PartSource
+								{
+									PartClass = partClass,
+									PartType = partType,
+									InputType = stringType,
+									IsStringInput = true,
+									ResType = resType,
+									IsStringRes = SymbolEqualityComparer.Default.Equals(stringType, resType),
+									BypassNoExamples = skipNoExamples,
+									ManualInput = manualInput
+								};
+							return new PartSource
+							{
+								PartClass = partClass,
+								PartType = partType,
+								InputType = solveParameter.Type,
+								IsStringInput = SymbolEqualityComparer.Default.Equals(stringType, solveParameter.Type),
+								ResType = resType,
+								IsStringRes = SymbolEqualityComparer.Default.Equals(stringType, resType),
+								BypassNoExamples = skipNoExamples,
+								ManualInput = manualInput
+							};
 						}
 					}
 				).Choose(d => d)
@@ -201,4 +234,6 @@ internal partial class DaysGenerator : IIncrementalGenerator
 			GenerateYearCollection(productionContext, years);
 		});
 	}
+
+
 }
