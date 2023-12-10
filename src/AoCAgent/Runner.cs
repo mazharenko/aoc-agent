@@ -53,49 +53,51 @@ public class Runner
 					return stats;
 				});
 
+		var atLeastOneCorrectAnswer = false;
+		
 		var allExamplesCorrect = CollectCandidates(year, currentStats, out var failedExamples);
 		if (allExamplesCorrect.Count == 0)
 		{
 			AnsiConsole.MarkupLine(
 				"[green bold]There are no days that are not solved yet but implemented and worth trying to calculate and submit answers for.[/]");
-			return;
 		}
-
-		AnsiConsole.MarkupLine(
-			$"Overall [yellow bold]{allExamplesCorrect.Count}[/] days and parts that are not solved but examples were " +
-			$"passed for. Worth trying to calculate and submit answers for them: " +
-			string.Join(", ", allExamplesCorrect.Select(x => $"[yellow bold]{x.day.Num:00}/{x.part.Num}[/]")));
-
-		var atLeastOneCorrectAnswer = false;
-		foreach (var (day, part) in allExamplesCorrect)
+		else
 		{
-			var (answer, calculationTime) = await AnsiConsole.Status()
-				.StartAsync($"Obtaining input for day {day.Num:00}", async ctx =>
+			AnsiConsole.MarkupLine(
+				$"Overall [yellow bold]{allExamplesCorrect.Count}[/] days and parts that are not solved but examples were " +
+				$"passed for. Worth trying to calculate and submit answers for them: " +
+				string.Join(", ", allExamplesCorrect.Select(x => $"[yellow bold]{x.day.Num:00}/{x.part.Num}[/]")));
+
+			foreach (var (day, part) in allExamplesCorrect)
+			{
+				var (answer, calculationTime) = await AnsiConsole.Status()
+					.StartAsync($"Obtaining input for day {day.Num:00}", async ctx =>
+					{
+						var obtained = await client.LoadInput(Day.Create(day.Num));
+						var sw = Stopwatch.StartNew();
+						AnsiConsole.MarkupLine($"[[{day.Num:00}/{part.Num}]] :check_mark: Input obtained");
+						ctx.Status($"Calculating answer for {day.Num:00}/{part.Num}");
+						return (part.Part.SolveString(obtained), sw.Elapsed);
+					});
+
+				if (part.Part.Settings.ManualInterpretation)
 				{
-					var obtained = await client.LoadInput(Day.Create(day.Num));
-					var sw = Stopwatch.StartNew();
-					AnsiConsole.MarkupLine($"[[{day.Num:00}/{part.Num}]] :check_mark: Input obtained");
-					ctx.Status($"Calculating answer for {day.Num:00}/{part.Num}");
-					return (part.Part.SolveString(obtained), sw.Elapsed);
-				});
+					AnsiConsole.MarkupLine(
+						$"[[{day.Num:00}/{part.Num}]] :check_mark: Answer calculated in {calculationTime.ToHumanReadable()}");
+					AnsiConsole.WriteLine(answer);
+					var answerToSubmit = AnsiConsole.Prompt(new TextPrompt<string>("[yellow bold]Interpret the answer manually[/]"));
+					await SubmitAnswer(client, day, part, answerToSubmit);
+				}
+				else
+				{
+					AnsiConsole.MarkupLine(
+						$"[[{day.Num:00}/{part.Num}]] :check_mark: Answer '{answer}' calculated in {calculationTime.ToHumanReadable()}");
 
-			if (part.Part.Settings.ManualInterpretation)
-			{
-				AnsiConsole.MarkupLine(
-					$"[[{day.Num:00}/{part.Num}]] :check_mark: Answer calculated in {calculationTime.ToHumanReadable()}");
-				AnsiConsole.WriteLine(answer);
-				var answerToSubmit = AnsiConsole.Prompt(new TextPrompt<string>("[yellow bold]Interpret the answer manually[/]"));
-				await SubmitAnswer(client, day, part, answerToSubmit);
-			}
-			else
-			{
-				AnsiConsole.MarkupLine(
-					$"[[{day.Num:00}/{part.Num}]] :check_mark: Answer '{answer}' calculated in {calculationTime.ToHumanReadable()}");
-
-				atLeastOneCorrectAnswer |= await SubmitAnswer(client, day, part, answer);
+					atLeastOneCorrectAnswer |= await SubmitAnswer(client, day, part, answer);
+				}
 			}
 		}
-		
+
 		if (failedExamples.Count > 0)
 		{
 			AnsiConsole.MarkupLine("[yellow bold]Please revise failed examples[/]");
