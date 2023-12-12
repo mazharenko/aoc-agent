@@ -155,7 +155,7 @@ public class Runner
 					case SubmissionResult.TooLow:
 						AnsiConsole.MarkupLine($"[[{day.Num:00}/{part.Num}]]");
 						AnsiConsole.Write(Renderables.Incorrect("too low"));
-						break;
+						return false;
 					case SubmissionResult.TooRecently(var leftToWait):
 						AnsiConsole.MarkupLine(
 							$"[[{day.Num:00}/{part.Num}]] :timer_clock: Answer given too recently. Need to wait {leftToWait.ToHumanReadable()}");
