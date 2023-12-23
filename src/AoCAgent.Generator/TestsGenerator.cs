@@ -216,7 +216,7 @@ internal class TestsGenerator : IIncrementalGenerator
 			  				if (part is null) continue;
 			  
 			  				var test = b.BuildTestMethod(method, dayFixture, new TestCaseParameters(
-			  					new object[] { part.Part, $"inputs/input{dayNum:00}.txt" }
+			  					new object[] { part.Part, includeYear ? $"inputs/year{year.Year}/input{dayNum:00}.txt" : $"inputs/input{dayNum:00}.txt" }
 			  				)
 			  				{
 			  					ExpectedResult = expectation,
