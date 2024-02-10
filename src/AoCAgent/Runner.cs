@@ -86,7 +86,7 @@ public class Runner
 						$"[[{day.Num:00}/{part.Num}]] :check_mark: Answer calculated in {calculationTime.ToHumanReadable()}");
 					AnsiConsole.WriteLine(answer);
 					var answerToSubmit = AnsiConsole.Prompt(new TextPrompt<string>("[yellow bold]Interpret the answer manually[/]"));
-					await SubmitAnswer(client, day, part, answerToSubmit);
+					atLeastOneCorrectAnswer |= await SubmitAnswer(client, day, part, answerToSubmit);
 				}
 				else
 				{
