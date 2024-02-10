@@ -46,31 +46,35 @@ internal class AoCCachingClient : IAoCClient
 			&& attempt.PartId.Part == part.Num
 			&& attempt.Answer == answer
 		);
+		SubmissionResult result;
 		if (existingAttempt is not null)
-			return existingAttempt.Verdict switch
+			result = existingAttempt.Verdict switch
 			{
 				DbAttemptVerdict.Correct => new SubmissionResult.Correct(),
 				DbAttemptVerdict.TooLow => new SubmissionResult.TooLow(),
 				DbAttemptVerdict.TooHigh => new SubmissionResult.TooHigh(),
 				DbAttemptVerdict.Incorrect => new SubmissionResult.Incorrect()
 			};
-		var result = await underlyingClient.SubmitAnswer(day, part, answer);
-		
-		if (result is not SubmissionResult.TooRecently)
-			db.GetCollection<DbAttempt>().Upsert(new DbAttempt
-			{
-				PartId = new DbPartId(day, part),
-				Answer = answer,
-				Verdict = result switch
+		else
+		{
+			result = await underlyingClient.SubmitAnswer(day, part, answer);
+
+			if (result is not SubmissionResult.TooRecently)
+				db.GetCollection<DbAttempt>().Upsert(new DbAttempt
 				{
-					SubmissionResult.Correct => DbAttemptVerdict.Correct,
-					SubmissionResult.Incorrect => DbAttemptVerdict.Incorrect,
-					SubmissionResult.TooHigh => DbAttemptVerdict.TooHigh,
-					SubmissionResult.TooLow => DbAttemptVerdict.TooLow,
-					_ => throw new ArgumentOutOfRangeException(nameof(result))
-				}
-			});
-		
+					PartId = new DbPartId(day, part),
+					Answer = answer,
+					Verdict = result switch
+					{
+						SubmissionResult.Correct => DbAttemptVerdict.Correct,
+						SubmissionResult.Incorrect => DbAttemptVerdict.Incorrect,
+						SubmissionResult.TooHigh => DbAttemptVerdict.TooHigh,
+						SubmissionResult.TooLow => DbAttemptVerdict.TooLow,
+						_ => throw new ArgumentOutOfRangeException(nameof(result))
+					}
+				});
+		}
+
 		if (result is SubmissionResult.Correct)
 		{
 			var stats = db.GetCollection<DbStats>().Query().FirstOrDefault();
