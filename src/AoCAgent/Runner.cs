@@ -156,15 +156,19 @@ public class Runner
 						AnsiConsole.MarkupLine($"[[{day.Num:00}/{part.Num}]]");
 						AnsiConsole.Write(Renderables.Incorrect("too low"));
 						return false;
-					case SubmissionResult.TooRecently(var leftToWait):
+					case SubmissionResult.TooRecently(var toWait):
 						AnsiConsole.MarkupLine(
-							$"[[{day.Num:00}/{part.Num}]] :timer_clock: Answer given too recently. Need to wait {leftToWait.ToHumanReadable()}");
+							$"[[{day.Num:00}/{part.Num}]] :timer_clock: Answer given too recently. Need to wait {toWait.ToHumanReadable()}");
 						var timeoutStopwatch = Stopwatch.StartNew();
-						while (timeoutStopwatch.Elapsed < leftToWait)
+						var leftToWait = toWait - timeoutStopwatch.Elapsed;
+						while (leftToWait >= TimeSpan.Zero)
 						{
-							await Task.Delay(1000);
 							ctx.Status(
-								$"Waiting [yellow bold]{(leftToWait - timeoutStopwatch.Elapsed).ToHumanReadable()}[/] more before another attempt");
+								$"Waiting [yellow bold]{leftToWait.ToHumanReadable()}[/] more before another attempt");
+							await Task.Delay(leftToWait.TotalMilliseconds > 1000 
+								? 1000 
+								: (int)leftToWait.TotalMilliseconds);
+							leftToWait = toWait - timeoutStopwatch.Elapsed;
 						}
 						continue;
 					default:
