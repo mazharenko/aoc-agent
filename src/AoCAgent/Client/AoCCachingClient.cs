@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Reflection;
 using LiteDB;
 
@@ -36,6 +35,18 @@ internal class AoCCachingClient : IAoCClient
 		db.Mapper.EmptyStringToNull = false;
 		db.GetCollection<DbAttempt>().EnsureIndex(attempt => attempt.PartId);
 		return db;
+	}
+
+	public async Task AcquireStar50()
+	{
+		using var db = ConnectToDb();
+		await underlyingClient.AcquireStar50();
+		var stats = db.GetCollection<DbStats>().Query().FirstOrDefault();
+		stats.Stats =
+			stats.Stats.Prepend(new DbDayPartStat { Id = new DbPartId(Day.Create(25), Part._2), Solved = true })
+				.DistinctBy(stat => stat.Id)
+				.ToList();
+		db.GetCollection<DbStats>().Update(stats);
 	}
 
 	public async Task<SubmissionResult> SubmitAnswer(Day day, Part part, string answer)
@@ -88,23 +99,26 @@ internal class AoCCachingClient : IAoCClient
 		return result;
 	}
 
-	public async Task<IImmutableDictionary<(Day, Part), bool>> GetDayResults()
+	public async Task<Stats> GetDayResults()
 	{
 		using var db = ConnectToDb();
 		var stats = db.GetCollection<DbStats>().Query().FirstOrDefault();
 		if (stats is not null && stats.Timestamp > DateTime.Now.AddHours(-2))
-			return stats.Stats.ToDictionary(
+			return new Stats(stats.Stats.ToDictionary(
 				x => (Day.Create(x.Id.DayNum), Part.Create(x.Id.Part)),
 				x => x.Solved
-			).ToImmutableDictionary();
+			));
 
-		var actualResults =
-			await underlyingClient.GetDayResults();
+		var actualResults = await underlyingClient.GetDayResults();
 		db.GetCollection<DbStats>().Upsert(
 			new DbStats
 			{
 				Stats = actualResults.Select(
-					x => new DbDayPartStat{Id = new DbPartId(x.Key.Item1.Num, x.Key.Item2.Num), Solved = x.Value}
+					x => new DbDayPartStat
+					{
+						Id = new DbPartId(x.Key.Item1.Num, x.Key.Item2.Num),
+						Solved = x.Value
+					}
 				).ToList(),
 				Timestamp = DateTime.Now
 			}

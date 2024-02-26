@@ -26,8 +26,32 @@ internal class AoCClient : IAoCClient
 		return await response.Content.ReadAsStringAsync();
 	}
 
+	public async Task AcquireStar50()
+	{
+		var form = new FormUrlEncodedContent(
+			new Dictionary<string, string>
+			{
+				["level"] = "2",
+				["answer"] = "0"
+			}
+		);
+		var response = await httpClient.PostAsync($"/{year}/day/25/answer", form);
+		response.EnsureSuccessStatusCode();
+		var content = await response.Content.ReadAsStringAsync();
+		if (content.Contains("You've finished every puzzle"))
+			return;
+		if (content.Contains("You don't seem to be solving the right level."))
+		{
+			if ((await GetDayResults()).GetValueOrDefault((Day.Create(25), Part._2)))
+				return;
+			throw new InvalidOperationException("To acquire star 50, all other puzzles must be solved");
+		}
+		throw new InvalidOperationException("Could not interpret the submission result");
+	}
+
 	public async Task<SubmissionResult> SubmitAnswer(Day day, Part part, string answer)
 	{
+		// Congratulations! You've finished every puzzle in Advent of Code 2023
 		var form = new FormUrlEncodedContent(
 			new Dictionary<string, string>
 			{
@@ -67,12 +91,12 @@ internal class AoCClient : IAoCClient
 	private static readonly Regex DayRegex = new("""
 	                                             aria-label="Day (?<day>\d+)(, (?<stars>((one star)|(two stars))?))?"
 	                                             """);
-	public async Task<IImmutableDictionary<(Day, Part), bool>> GetDayResults()
+	public async Task<Stats> GetDayResults()
 	{
-		var dic = ImmutableDictionary.CreateBuilder<(Day, Part), bool>();
+		var dic = new Stats();
 		await foreach (var (day, part, solved) in _GetDayResults()) 
 			dic.Add((day, part), solved);
-		return dic.ToImmutable();
+		return dic;
 	}
 	private async IAsyncEnumerable<(Day, Part, bool)> _GetDayResults()
 	{

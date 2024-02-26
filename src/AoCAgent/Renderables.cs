@@ -47,35 +47,42 @@ internal static class Renderables
 	
 	public static IRenderable Splash(int year, int stars = 0)
 	{
-		var grid = new Grid().AddColumn().AddColumn();
+		var grid = new Grid().AddColumn();
 		var tree = Tree(stars);
-		grid.AddRow(tree, new Panel(
+		grid.AddRow(
+			new Grid().AddColumn().AddColumn()
+				.AddRow(tree, new Panel(
 			Align.Left(
 				new FigletText($"AoC {year}")
 			).MiddleAligned()
-		).Height(tree.Height).NoBorder());
+		).Height(tree.Height).NoBorder()));
+			
+		if (stars == 50)
+			grid.AddRow(new FigletText("completed"));
 		return grid;
 	}
 
-	public static readonly IRenderable Correct =
-		new Grid().AddColumn().AddColumn()
+	public static IRenderable Correct(string text = "right!")
+	{
+		return new Grid().AddColumn().AddColumn()
 			.AddRow(
-					// ReSharper disable StringLiteralTypo
-					new Text("""
-					                 .
-					                ,O,
-					               ,OOO,
-					         'oooooOOOOOooooo'
-					           `OOOOOOOOOOO`
-					             `OOOOOOO`
-					             OOOO'OOOO
-					            OOO'   'OOO
-					           O'         'O
-					         """, new Style(Color.Yellow, decoration: Decoration.Bold)),
+				// ReSharper disable StringLiteralTypo
+				new Text("""
+				                 .
+				                ,O,
+				               ,OOO,
+				         'oooooOOOOOooooo'
+				           `OOOOOOOOOOO`
+				             `OOOOOOO`
+				             OOOO'OOOO
+				            OOO'   'OOO
+				           O'         'O
+				         """, new Style(Color.Yellow, decoration: Decoration.Bold)),
 				// ReSharper restore StringLiteralTypo
-				new Panel(Align.Left(new FigletText("right!")).MiddleAligned())
+				new Panel(Align.Left(new FigletText(text)).MiddleAligned())
 					.NoBorder().Height(13)
 			);
+	}
 
 	public static IRenderable Incorrect(string text)
 	{

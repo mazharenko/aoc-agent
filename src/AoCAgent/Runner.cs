@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Diagnostics;
 using JetBrains.Annotations;
 using mazharenko.AoCAgent.Base;
@@ -48,12 +47,15 @@ public class Runner
 					ctx.Refresh();
 					// ReSharper disable once AccessToDisposedClosure
 					var stats = await client.GetDayResults();
-					var stars = stats.Sum(x => x.Value ? 1 : 0);
+					var stars = stats.Stars;
 					ctx.UpdateTarget(Renderables.Splash(year.Year, stars));
 					return stats;
 				});
 
 		var atLeastOneCorrectAnswer = false;
+		
+		if (currentStats.AllComplete())
+			return;
 		
 		var allExamplesCorrect = CollectCandidates(year, currentStats, out var failedExamples);
 		if (allExamplesCorrect.Count == 0)
@@ -98,6 +100,15 @@ public class Runner
 			}
 		}
 
+		var newStats = await client.GetDayResults();
+		if (newStats.Stars == 49)
+		{
+			AnsiConsole.MarkupLine("[green bold]49 stars have been acquired. Claiming the last one[/]");
+			await SubmitStar50(client);
+			newStats = await client.GetDayResults();
+			atLeastOneCorrectAnswer = true;
+		}
+
 		if (failedExamples.Count > 0)
 		{
 			AnsiConsole.MarkupLine("[yellow bold]Please revise failed examples[/]");
@@ -123,12 +134,17 @@ public class Runner
 			AnsiConsole.Write(table);
 		}
 		else if (atLeastOneCorrectAnswer)
-		{
-			var stats = await client.GetDayResults();
-			var stars = stats.Sum(x => x.Value ? 1 : 0);
-			AnsiConsole.Write(Renderables.Splash(year.Year, stars));
-		}
+			AnsiConsole.Write(Renderables.Splash(year.Year, newStats.Stars));
+	}
 
+	private static async Task SubmitStar50(IAoCClient client)
+	{
+		await AnsiConsole.Status().StartAsync("Claiming star 50", async ctx =>
+		{
+			await client.AcquireStar50();
+			AnsiConsole.MarkupLine("[[25/2]]");
+			AnsiConsole.Write(Renderables.Correct("50!"));
+		});
 	}
 
 	private static async Task<bool> SubmitAnswer(IAoCClient client, RunnerDay day, RunnerPart part, string answer)
@@ -142,7 +158,7 @@ public class Runner
 				{
 					case SubmissionResult.Correct:
 						AnsiConsole.MarkupLine($"[[{day.Num:00}/{part.Num}]]");
-						AnsiConsole.Write(Renderables.Correct);
+						AnsiConsole.Write(Renderables.Correct());
 						return true;
 					case SubmissionResult.Incorrect:
 						AnsiConsole.MarkupLine($"[[{day.Num:00}/{part.Num}]]");
@@ -178,7 +194,7 @@ public class Runner
 		});
 	}
 
-	private static List<(RunnerDay day, RunnerPart part)> CollectCandidates(YearBase year, IImmutableDictionary<(Day, Part), bool> currentStats,
+	private static List<(RunnerDay day, RunnerPart part)> CollectCandidates(YearBase year, Stats currentStats,
 		out List<(RunnerDay day, RunnerPart part, ExampleCheckResult.Failed failed)> failedExamples)
 	{
 		var dayExampleResults =
@@ -189,11 +205,9 @@ public class Runner
 						year.Days.OrderByDescending(day => day.Num)
 							.Select(day =>
 							{
-								var part1Solved = currentStats.GetValueOrDefault((Day.Create(day.Num), Part._1), false);
-								var part2Solved = currentStats.GetValueOrDefault((Day.Create(day.Num), Part._2), false);
-								if (!part1Solved)
+								if (!currentStats.IsSolved(Day.Create(day.Num), Part._1))
 									return (day, day.Part1);
-								if (!part2Solved)
+								if (!currentStats.IsSolved(Day.Create(day.Num), Part._2))
 									return (day, day.Part2);
 
 								return ((RunnerDay, RunnerPart)?)null;

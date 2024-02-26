@@ -12,9 +12,32 @@ internal abstract record SubmissionResult
 	public record TooRecently(TimeSpan LeftToWait) : SubmissionResult;
 }
 
+internal class Stats : Dictionary<(Day, Part), bool>
+{
+	public Stats()
+	{
+	}
+	public Stats(IDictionary<(Day, Part), bool> dictionary) : base(dictionary)
+	{
+	}
+
+	public bool IsSolved(Day day, Part part)
+	{
+		return this.GetValueOrDefault((Day.Create(day.Num), part), false);
+	}
+	
+	public int Stars => this.Sum(x => x.Value ? 1 : 0);
+
+	public bool AllComplete()
+	{
+		return Stars == 50;
+	}
+}
+
 internal interface IAoCClient : IDisposable
 {
 	Task<string> LoadInput(Day day);
 	Task<SubmissionResult> SubmitAnswer(Day day, Part part, string answer);
-	Task<IImmutableDictionary<(Day, Part), bool>> GetDayResults();
+	Task<Stats> GetDayResults();
+	Task AcquireStar50();
 }
