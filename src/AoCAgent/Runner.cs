@@ -3,13 +3,17 @@ using JetBrains.Annotations;
 using mazharenko.AoCAgent.Base;
 using mazharenko.AoCAgent.Client;
 using mazharenko.AoCAgent.Misc;
+using mazharenko.AoCAgent.Stages;
+using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
+using Stateless;
 
 namespace mazharenko.AoCAgent;
 
 [PublicAPI]
 public class Runner
 {
+	// todo
 	private static string GetSessionKey()
 	{
 		const string sessionCookieFileName = "SESSION.COOKIE";
@@ -37,6 +41,22 @@ public class Runner
 
 	public async Task Run(YearBase year)
 	{
+		var services =
+				new ServiceCollection()
+					.AddSingleton(year)
+					.AddSingleton<IAoCClient>(_ => new AoCCachingClient(year.Year, new AoCClient(year.Year, GetSessionKey())))
+					.AddSingleton<IAnsiConsole>(_ => AnsiConsole.Create(new AnsiConsoleSettings()))
+					.AddSingleton<RunnerContext>()
+					.AddSingleton<RunnerSequence>()
+					.AddSingleton<StatsStage>()
+					.AddSingleton<CheckExamplesStage>()
+					.AddSingleton<FailedExamplesStage>()
+					.AddSingleton<SubmitAnswersStage>()
+			;
+		await using var serviceProvider = services.BuildServiceProvider();
+		await serviceProvider.GetRequiredService<RunnerSequence>().Run();
+		return;
+/*
 		var sessionKey = GetSessionKey();
 		using var client = new AoCCachingClient(year.Year, new AoCClient(year.Year, sessionKey));
 
@@ -48,15 +68,16 @@ public class Runner
 					// ReSharper disable once AccessToDisposedClosure
 					var stats = await client.GetDayResults();
 					var stars = stats.Stars;
+					Thread.Sleep(3000);
 					ctx.UpdateTarget(Renderables.Splash(year.Year, stars));
 					return stats;
 				});
 
 		var atLeastOneCorrectAnswer = false;
-		
+
 		if (currentStats.AllComplete())
 			return;
-		
+
 		var allExamplesCorrect = CollectCandidates(year, currentStats, out var failedExamples);
 		if (allExamplesCorrect.Count == 0)
 		{
@@ -181,21 +202,22 @@ public class Runner
 						{
 							ctx.Status(
 								$"Waiting [yellow bold]{leftToWait.ToHumanReadable()}[/] more before another attempt");
-							await Task.Delay(leftToWait.TotalMilliseconds > 1000 
-								? 1000 
+							await Task.Delay(leftToWait.TotalMilliseconds > 1000
+								? 1000
 								: (int)leftToWait.TotalMilliseconds);
 							leftToWait = toWait - timeoutStopwatch.Elapsed;
 						}
+
 						continue;
 					default:
 						throw new ArgumentOutOfRangeException(nameof(submissionResult));
 				}
 			}
-		});
+		});*/
 	}
 
 	private static List<(RunnerDay day, RunnerPart part)> CollectCandidates(YearBase year, Stats currentStats,
-		out List<(RunnerDay day, RunnerPart part, ExampleCheckResult.Failed failed)> failedExamples)
+		out List<(RunnerDay day, RunnerPart part, CheckExamplesResult.Failed failed)> failedExamples)
 	{
 		var dayExampleResults =
 			AnsiConsole.Status()
@@ -218,7 +240,7 @@ public class Runner
 					if (notSolvedDays.Count == 0)
 					{
 						AnsiConsole.MarkupLine("[green bold]There are no days that are not solved yet[/]");
-						return new List<(RunnerDay, RunnerPart, ExampleCheckResult)>();
+						return new List<(RunnerDay, RunnerPart, CheckExamplesResult)>();
 					}
 
 					AnsiConsole.MarkupLine($"Found [yellow bold]{notSolvedDays.Count}[/] not solved days and parts: " +
@@ -233,11 +255,11 @@ public class Runner
 							var result = CheckExamples(part);
 							var status = result switch
 							{
-								ExampleCheckResult.AllCorrect => "[green bold]all correct[/]",
-								ExampleCheckResult.SkipNoExamples => "[green bold]no examples[/]",
-								ExampleCheckResult.Failed failed => $"[red]failed {failed.FailedExamples.Count} examples[/]",
-								ExampleCheckResult.NoExamples => "[grey]no examples[/]",
-								ExampleCheckResult.NotImplemented => "[grey]not implemented[/]",
+								CheckExamplesResult.AllCorrect => "[green bold]all correct[/]",
+								CheckExamplesResult.SkipNoExamples => "[green bold]no examples[/]",
+								CheckExamplesResult.Failed failed => $"[red]failed {failed.FailedExamples.Count} examples[/]",
+								CheckExamplesResult.NoExamples => "[grey]no examples[/]",
+								CheckExamplesResult.NotImplemented => "[grey]not implemented[/]",
 								_ => throw new ArgumentOutOfRangeException()
 							};
 							AnsiConsole.MarkupLine($"Day {day.Num:00} Part {part.Num} - {status}");
@@ -250,7 +272,7 @@ public class Runner
 		failedExamples = dayExampleResults.Choose(x =>
 		{
 			var (day, part, result) = x;
-			if (result is ExampleCheckResult.Failed failed)
+			if (result is CheckExamplesResult.Failed failed)
 				return (day, part, failed).ToNullable();
 			return null;
 		}).ToList();
@@ -259,29 +281,20 @@ public class Runner
 			.Choose(x =>
 			{
 				var (day, part, result) = x;
-				return result is ExampleCheckResult.AllCorrect or ExampleCheckResult.SkipNoExamples
+				return result is CheckExamplesResult.AllCorrect or CheckExamplesResult.SkipNoExamples
 					? (day, part).ToNullable()
 					: null;
 			}).ToList();
 	}
 
-	private abstract record ExampleCheckResult
-	{
-		private ExampleCheckResult(){ }
-		public record AllCorrect : ExampleCheckResult;
-		public record NotImplemented : ExampleCheckResult;
-		public record NoExamples : ExampleCheckResult;
-		public record SkipNoExamples : ExampleCheckResult;
-		public record Failed(IList<(NamedExample, string?, Exception?)> FailedExamples) : ExampleCheckResult;
-	}
 
-	private static ExampleCheckResult CheckExamples(RunnerPart part)
+	private static CheckExamplesResult CheckExamples(RunnerPart part)
 	{
 		var examples = part.Part.GetExamples().ToList();
 		if (examples.Count == 0 && part.Part.Settings.BypassNoExamples)
-			return new ExampleCheckResult.SkipNoExamples();
+			return new CheckExamplesResult.SkipNoExamples();
 		if (examples.Count == 0)
-			return new ExampleCheckResult.NoExamples();
+			return new CheckExamplesResult.NoExamples();
 		IList<(NamedExample, string?, Exception?)> failedExamples = new List<(NamedExample, string?, Exception?)>();
 		foreach (var example in examples)
 		{
@@ -293,16 +306,16 @@ public class Runner
 			}
 			catch (NotImplementedException)
 			{
-				return new ExampleCheckResult.NotImplemented();
+				return new CheckExamplesResult.NotImplemented();
 			}
 			catch (Exception e)
 			{
 				failedExamples.Add((example, null, e));
 			}
 		}
-		
+
 		if (failedExamples.Count == 0)
-			return new ExampleCheckResult.AllCorrect();
-		return new ExampleCheckResult.Failed(failedExamples);
+			return new CheckExamplesResult.AllCorrect();
+		return new CheckExamplesResult.Failed(failedExamples);
 	}
 }

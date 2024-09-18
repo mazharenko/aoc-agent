@@ -4,6 +4,8 @@ source https://api.nuget.org/v3/index.json
 
 storage: none
 
+nuget Microsoft.Extensions.DependencyInjection >= 8.0.0
+nuget Stateless >= 5.16.0
 nuget ThisAssembly.AssemblyInfo >= 1.4.1 copy_local: false
 nuget Microsoft.CodeAnalysis.CSharp.Workspaces >= 4.6.0 copy_local: false
 nuget LiteDB >= 5.0.17

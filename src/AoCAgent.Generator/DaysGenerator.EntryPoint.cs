@@ -3,7 +3,6 @@ using mazharenko.AoCAgent.Generator.Mics;
 using mazharenko.AoCAgent.Generator.Sources;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
-using Trivia = mazharenko.AoCAgent.Generator.Mics.Trivia;
 
 namespace mazharenko.AoCAgent.Generator;
 

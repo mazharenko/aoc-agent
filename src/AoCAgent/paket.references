@@ -2,3 +2,5 @@ LiteDB
 Spectre.Console
 JetBrains.Annotations
 ThisAssembly.AssemblyInfo
+Stateless
+Microsoft.Extensions.DependencyInjection
