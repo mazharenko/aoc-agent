@@ -7,7 +7,7 @@ internal class AoCClient : IAoCClient
 {
 	private readonly int year;
 	private readonly HttpClient httpClient;
-
+// todo попробовать IHttpClientFactory с DI????
 	public AoCClient(int year, string sessionToken)
 	{
 		this.year = year;

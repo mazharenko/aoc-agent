@@ -3,17 +3,8 @@ using LiteDB;
 
 namespace mazharenko.AoCAgent.Client;
 
-internal class AoCCachingClient : IAoCClient
+internal class AoCCachingClient(int year, IAoCClient underlyingClient) : IAoCClient
 {
-	private readonly int year;
-	private readonly IAoCClient underlyingClient;
-
-	public AoCCachingClient(int year, IAoCClient underlyingClient)
-	{
-		this.year = year;
-		this.underlyingClient = underlyingClient;
-	}
-	
 	public async Task<string> LoadInput(Day day)
 	{
 		using var db = ConnectToDb();
@@ -87,7 +78,7 @@ internal class AoCCachingClient : IAoCClient
 		}
 
 		if (result is SubmissionResult.Correct)
-		{
+		{// todo extract?
 			var stats = db.GetCollection<DbStats>().Query().FirstOrDefault();
 			stats.Stats = 
 				stats.Stats.Prepend(new DbDayPartStat { Id = new DbPartId(day, part), Solved = true })
