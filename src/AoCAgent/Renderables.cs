@@ -10,6 +10,12 @@ internal static class Renderables
 {
 	private const string TreeTop =
 		"""
+		           
+		            [grey bold underline]*
+		[/]
+		""";
+	private const string TreeTopLit = 
+		"""
 		           [yellow bold]\|/
 		            [underline]*[/]
 		[/]
@@ -38,9 +44,9 @@ internal static class Renderables
 		var treeString2 = Regex.Replace(treeString1, "[O]", m => count++ >= starCount ? $"[grey bold]{m.Value}[/]" : $"[blue1 bold]{m.Value}[/]");
 		var treeString3 = Regex.Replace(treeString2, "[@]", m => count++ >= starCount ? $"[grey bold]{m.Value}[/]" : $"[red1 bold]{m.Value}[/]");
 		var treeString = Regex.Replace(treeString3, "[*]", m => count++ >= starCount ? $"[grey bold]{m.Value}[/]" : $"[yellow1 bold]{m.Value}[/]");
-
+		var top = count == 50 ? TreeTopLit : TreeTop;
 		return new Panel(
-			new Markup(TreeTop + treeString,
+			new Markup(top + treeString,
 				new Style(Color.Green))
 		).Height(19).Padding(2, 1).NoBorder();
 	}
