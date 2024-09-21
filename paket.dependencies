@@ -7,5 +7,17 @@ storage: none
 nuget ThisAssembly.AssemblyInfo >= 1.4.1 copy_local: false
 nuget Microsoft.CodeAnalysis.CSharp.Workspaces >= 4.6.0 copy_local: false
 nuget LiteDB >= 5.0.17
-nuget Spectre.Console >= 0.46.0
+nuget Spectre.Console ~> 0.49
 nuget JetBrains.Annotations >= 2022.1.0
+
+group Tests
+  source https://api.nuget.org/v3/index.json
+  storage: none
+  framework: net8.0
+  nuget NUnit ~> 4.2
+  nuget NUnit3TestAdapter ~> 4.6.0
+  nuget Microsoft.NET.Test.Sdk ~> 17.11.0
+  nuget Verify.NUnit ~> 26
+  nuget FakeItEasy ~> 8.3
+  nuget Spectre.Console.Testing ~> 0.49
+  nuget FluentAssertions ~> 6.12
