@@ -25,7 +25,9 @@ internal class Stats : Dictionary<(Day, Part), bool>
 	{
 		return this.GetValueOrDefault((Day.Create(day.Num), part), false);
 	}
-	
+
+	public void Add(Day day, Part part, bool solved) => Add((day, part), solved);
+
 	public int Stars => this.Sum(x => x.Value ? 1 : 0);
 
 	public bool AllComplete()

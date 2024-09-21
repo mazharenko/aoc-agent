@@ -1,0 +1,2 @@
+﻿Checking if there are days and parts that are implemented but not solved yet
+[1;38;5;2mThere are no days that are not solved yet[0m

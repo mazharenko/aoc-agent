@@ -11,3 +11,5 @@
 
 paket-files/
 nuget/
+
+*.received.*
