@@ -1,9 +1,11 @@
-name: Publish
+name: Build
 
 on:
   push:
+    branches:
+      - '**'
     tags: 
-      - "[0-9]+\\.[0-9]+\\.[0-9]+"
+      - "[0-9]+.[0-9]+.[0-9]+-*"
 
 env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
@@ -15,7 +17,8 @@ defaults:
     shell: pwsh
 
 jobs:
-  publish_nuget:
+  test:
+    name: Run tests
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout repository
@@ -23,7 +26,23 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '7.0.x'
+          global-json-file: global.json
+      - name: Install Paket tools
+        run: dotnet tool restore
+      - name: Run tests
+        run: dotnet test -c Release
+    
+  publish_nuget:
+    runs-on: ubuntu-20.04
+    if: github.ref_type == 'tag'
+    needs: [ test ]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          global-json-file: global.json
       - name: Install Paket tools
         run: dotnet tool restore
       - name: Build projects

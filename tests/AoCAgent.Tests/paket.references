@@ -1,0 +1,9 @@
+group Tests
+
+NUnit
+NUnit3TestAdapter
+Microsoft.NET.Test.Sdk
+Verify.NUnit
+FakeItEasy
+Spectre.Console.Testing
+FluentAssertions
