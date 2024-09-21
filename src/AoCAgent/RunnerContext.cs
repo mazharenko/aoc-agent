@@ -5,10 +5,10 @@ using Spectre.Console;
 
 namespace mazharenko.AoCAgent;
 
-internal class RunnerContext(YearBase year, IServiceProvider serviceCollection)
+internal class RunnerContext(YearBase year, IServiceProvider serviceProvider)
 {
 	public YearBase Year { get; } = year;
-	public IAoCClient AoCClient { get; } = serviceCollection.GetRequiredService<IAoCClient>();
-	public IAnsiConsole Console => serviceCollection.GetRequiredService<IAnsiConsole>();
+	public IAoCClient AoCClient => serviceProvider.GetRequiredService<IAoCClient>();
+	public IAnsiConsole Console => serviceProvider.GetRequiredService<IAnsiConsole>();
 	public async Task<Stats> GetCurrentStats() => await AoCClient.GetDayResults();
 }

@@ -5,39 +5,8 @@ using Spectre.Console;
 
 namespace mazharenko.AoCAgent.Stages;
 
-internal class CheckExamplesStage(RunnerContext runnerContext)
+internal class CheckExamplesStage(RunnerContext runnerContext, CheckPartExamplesSubStage checkPartExamplesSubStage)
 {
-	private static CheckExamplesResult CheckExamples(RunnerPart part)
-	{
-		var examples = part.Part.GetExamples().ToList();
-		if (examples.Count == 0 && part.Part.Settings.BypassNoExamples)
-			return new CheckExamplesResult.SkipNoExamples();
-		if (examples.Count == 0)
-			return new CheckExamplesResult.NoExamples();
-		IList<(NamedExample, string?, Exception?)> failedExamples = new List<(NamedExample, string?, Exception?)>();
-		foreach (var example in examples)
-		{
-			try
-			{
-				var actual = example.Example.RunFormat(out var actualFormatted);
-				if (!Equals(actual, example.Example.Expectation))
-					failedExamples.Add((example, actualFormatted, null));
-			}
-			catch (NotImplementedException)
-			{
-				return new CheckExamplesResult.NotImplemented();
-			}
-			catch (Exception e)
-			{
-				failedExamples.Add((example, null, e));
-			}
-		}
-
-		if (failedExamples.Count == 0)
-			return new CheckExamplesResult.AllCorrect();
-		return new CheckExamplesResult.Failed(failedExamples);
-	}
-
 	public List<(RunnerDay, RunnerPart, CheckExamplesResult)> CheckExamples(Stats currentStats)
 	{
 		var notSolvedDays =
@@ -77,17 +46,7 @@ internal class CheckExamplesStage(RunnerContext runnerContext)
 						notSolvedDays.Select(x =>
 						{
 							var (day, part) = x;
-							var result = CheckExamples(part);
-							var status = result switch
-							{
-								CheckExamplesResult.AllCorrect => "[green bold]all correct[/]",
-								CheckExamplesResult.SkipNoExamples => "[green bold]no examples[/]",
-								CheckExamplesResult.Failed failed => $"[red]failed {failed.FailedExamples.Count} examples[/]",
-								CheckExamplesResult.NoExamples => "[grey]no examples[/]",
-								CheckExamplesResult.NotImplemented => "[grey]not implemented[/]",
-								_ => throw new ArgumentOutOfRangeException()
-							};
-							runnerContext.Console.MarkupLine($"Day {day.Num:00} Part {part.Num} - {status}");
+							var result = checkPartExamplesSubStage.CheckExamples(day.Num, part);
 							return (day, part, result);
 						}).ToList();
 
@@ -95,13 +54,5 @@ internal class CheckExamplesStage(RunnerContext runnerContext)
 				});
 
 		return dayExampleResults;
-		var failedExamples = dayExampleResults
-			.Choose(x =>
-			{
-				var (day, part, result) = x;
-				if (result is CheckExamplesResult.Failed failed)
-					return (day, part, failed).ToNullable();
-				return null;
-			}).ToList();
 	}
 }

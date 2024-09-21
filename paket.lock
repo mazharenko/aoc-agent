@@ -177,6 +177,7 @@ NUGET
     runtime.ubuntu.16.10-x64.runtime.native.System.Security.Cryptography.OpenSsl (4.3.2) - restriction: && (< monotouch) (< net45) (>= netstandard1.6) (< netstandard2.0) (< xamarintvos) (< xamarinwatchos)
     Spectre.Console (0.49)
       System.Memory (>= 4.5.5) - restriction: && (< net6.0) (>= netstandard2.0)
+    Spectre.Console.Analyzer (1.0) - copy_local: false
     Stateless (5.16)
     System.AppContext (4.3) - restriction: && (< net45) (>= netstandard1.3) (< netstandard2.0)
       System.Runtime (>= 4.3) - restriction: || (&& (< monoandroid) (< net46) (>= netstandard1.3) (< netstandard1.6)) (&& (< monotouch) (< net46) (>= netstandard1.6) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos))
