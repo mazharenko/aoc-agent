@@ -4,3 +4,4 @@ JetBrains.Annotations
 ThisAssembly.AssemblyInfo
 Stateless
 Microsoft.Extensions.DependencyInjection
+Microsoft.Extensions.Http

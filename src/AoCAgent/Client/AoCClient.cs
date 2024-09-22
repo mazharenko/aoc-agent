@@ -3,24 +3,20 @@ using System.Text.RegularExpressions;
 
 namespace mazharenko.AoCAgent.Client;
 	
-internal class AoCClient : IAoCClient
+internal class AoCClient(int year, string sessionToken, IHttpClientFactory httpClientFactory) : IAoCClient
 {
-	private readonly int year;
-	private readonly HttpClient httpClient;
-// todo попробовать IHttpClientFactory с DI????
-	public AoCClient(int year, string sessionToken)
+	private HttpClient CreateHttpClient()
 	{
-		this.year = year;
-		httpClient = new HttpClient
-		{
-			BaseAddress = new Uri("https://adventofcode.com")
-		};
+		var httpClient = httpClientFactory.CreateClient();
+		httpClient.BaseAddress = new Uri("https://adventofcode.com");
 		httpClient.DefaultRequestHeaders.Add("cookie", "session=" + sessionToken);
 		httpClient.DefaultRequestHeaders.UserAgent.ParseAdd($"aoc-agent/{ThisAssembly.Info.Version} (+via github.com/mazharenko/aoc-agent by mazharenko.a@gmail.com)");
+		return httpClient;
 	}
 	
 	public async Task<string> LoadInput(Day day)
 	{
+		using var httpClient = CreateHttpClient();
 		var response = await httpClient.GetAsync($"/{year}/day/{day.Num}/input");
 		response.EnsureSuccessStatusCode();
 		return await response.Content.ReadAsStringAsync();
@@ -35,6 +31,7 @@ internal class AoCClient : IAoCClient
 				["answer"] = "0"
 			}
 		);
+		using var httpClient = CreateHttpClient();
 		var response = await httpClient.PostAsync($"/{year}/day/25/answer", form);
 		response.EnsureSuccessStatusCode();
 		var content = await response.Content.ReadAsStringAsync();
@@ -59,6 +56,7 @@ internal class AoCClient : IAoCClient
 				["answer"] = answer
 			}
 		);
+		using var httpClient = CreateHttpClient();
 		var response = await httpClient.PostAsync($"/{year}/day/{day.Num}/answer", form);
 		response.EnsureSuccessStatusCode();
 		var content = await response.Content.ReadAsStringAsync();
@@ -100,6 +98,7 @@ internal class AoCClient : IAoCClient
 	}
 	private async IAsyncEnumerable<(Day, Part, bool)> _GetDayResults()
 	{
+		using var httpClient = CreateHttpClient();
 		var response = await httpClient.GetStringAsync($"/{year}");
 		var statParsed = DayRegex.Matches(response);
 		
@@ -124,10 +123,5 @@ internal class AoCClient : IAoCClient
 					throw new InvalidOperationException($"Could not interpret day results: {match.Value}");
 			}
 		}
-	}
-
-	public void Dispose()
-	{
-		httpClient.Dispose();
 	}
 }

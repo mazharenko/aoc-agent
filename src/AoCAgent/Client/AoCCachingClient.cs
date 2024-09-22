@@ -116,9 +116,4 @@ internal class AoCCachingClient(int year, IAoCClient underlyingClient) : IAoCCli
 		);
 		return actualResults;
 	}
-
-	public void Dispose()
-	{
-		underlyingClient.Dispose();
-	}
 }

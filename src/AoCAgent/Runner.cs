@@ -44,7 +44,8 @@ public class Runner
 		var services =
 				new ServiceCollection()
 					.AddSingleton(year)
-					.AddSingleton<IAoCClient>(_ => new AoCCachingClient(year.Year, new AoCClient(year.Year, GetSessionKey())))
+					.AddSingleton<IAoCClient>(serviceProvider => 
+						new AoCCachingClient(year.Year, new AoCClient(year.Year, GetSessionKey(), serviceProvider.GetRequiredService<IHttpClientFactory>())))
 					.AddSingleton<IAnsiConsole>(_ => AnsiConsole.Create(new AnsiConsoleSettings()))
 					.AddSingleton<RunnerContext>()
 					.AddSingleton<RunnerSequence>()
@@ -52,6 +53,7 @@ public class Runner
 					.AddSingleton<CheckExamplesStage>()
 					.AddSingleton<FailedExamplesStage>()
 					.AddSingleton<SubmitAnswersStage>()
+					.AddHttpClient()
 			;
 		await using var serviceProvider = services.BuildServiceProvider();
 		await serviceProvider.GetRequiredService<RunnerSequence>().Run();

@@ -34,7 +34,7 @@ internal class Stats : Dictionary<(Day, Part), bool>
 	}
 }
 
-internal interface IAoCClient : IDisposable
+internal interface IAoCClient 
 {
 	Task<string> LoadInput(Day day);
 	Task<SubmissionResult> SubmitAnswer(Day day, Part part, string answer);
