@@ -4,19 +4,14 @@ using Spectre.Console.Testing;
 
 namespace AoCAgent.Tests.Stages;
 
-public class CheckExamplesStageTests
+internal class CheckExamplesStageTests
 {
 	[Test]
 	public async Task Should_Return_Empty_When_No_Not_Solved()
 	{
-		var year = new TestYear
-		{
-			Days =
-			{
-				DayFactory.Create(1, FakePart.Strict, FakePart.Strict),
-				DayFactory.Create(2, FakePart.Strict, FakePart.Strict)
-			}
-		};
+		var year = FakeYear.Default
+			.WithDay(1, FakePart.Strict, FakePart.Strict)
+			.WithDay(2, FakePart.Strict, FakePart.Strict);
 		var stats = new Stats
 		{
 			{ Day.Create(1), Part._1, true }, // solved and implemented
