@@ -16,5 +16,5 @@ internal abstract record CheckExamplesResult
 
 	public record SkipNoExamples : CheckExamplesResult;
 
-	public record Failed(IList<(NamedExample, string?, Exception?)> FailedExamples) : CheckExamplesResult;
+	public record Failed(IList<(NamedExample example, string? actual, Exception? exception)> FailedExamples) : CheckExamplesResult;
 }
