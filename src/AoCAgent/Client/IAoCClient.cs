@@ -28,7 +28,7 @@ internal class Stats : Dictionary<(Day, Part), bool>
 
 	public void Add(Day day, Part part, bool solved) => Add((day, part), solved);
 
-	public int Stars => this.Sum(x => x.Value ? 1 : 0);
+	public int Stars => this.Count(x => x.Value);
 
 	public bool AllComplete()
 	{
