@@ -143,7 +143,7 @@ internal class CheckPartExamplesSubStageTests
 				{
 					using (new AssertionScope())
 					{
-						x.example.Should().BeSameAs(examples[0]);
+						x.example.Should().BeSameAs(failedExample);
 						x.actual.Should().Be("41");
 						x.exception.Should().BeNull();
 					}
@@ -152,7 +152,7 @@ internal class CheckPartExamplesSubStageTests
 				{
 					using (new AssertionScope())
 					{
-						x.example.Should().BeSameAs(examples[2]);
+						x.example.Should().BeSameAs(failedWithExceptionExample);
 						x.actual.Should().BeNull();
 						x.exception.Should().NotBeNull();
 						x.exception?.Message.Should().Be("failed with exception");
@@ -162,7 +162,7 @@ internal class CheckPartExamplesSubStageTests
 				{
 					using (new AssertionScope())
 					{
-						x.example.Should().BeSameAs(examples[3]);
+						x.example.Should().BeSameAs(failedCustomTypeExample);
 						x.actual.Should().Be("actualCustomTypeFormatted");
 						x.exception.Should().BeNull();
 					}
