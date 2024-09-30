@@ -7,7 +7,7 @@ namespace mazharenko.AoCAgent.Stages;
 
 internal class SubmitAnswersStage(RunnerContext runnerContext)
 {
-	public async Task<SubmitAnswersResult> CalculateAndSubmit(List<(RunnerDay, RunnerPart, CheckExamplesResult)> exampleResults)
+	public async Task<SubmitAnswersResult> CalculateAndSubmit(List<(int day, RunnerPart, CheckExamplesResult)> exampleResults)
 	{
 		var atLeastOneCorrectAnswer = false;
 		var passedDayParts = exampleResults
@@ -28,24 +28,24 @@ internal class SubmitAnswersStage(RunnerContext runnerContext)
 		runnerContext.Console.MarkupLine(
 			$"Overall [yellow bold]{passedDayParts.Count}[/] days and parts that are not solved but examples were " +
 			$"passed for. Worth trying to calculate and submit answers for them: " +
-			string.Join(", ", passedDayParts.Select(x => $"[yellow bold]{x.day.Num:00}/{x.part.Num}[/]")));
+			string.Join(", ", passedDayParts.Select(x => $"[yellow bold]{x.day:00}/{x.part.Num}[/]")));
 
 		foreach (var (day, part) in passedDayParts)
 		{
 			var (answer, calculationTime) = await new Status(runnerContext.Console)
-				.StartAsync($"Obtaining input for day {day.Num:00}", async ctx =>
+				.StartAsync($"Obtaining input for day {day:00}", async ctx =>
 				{
-					var obtained = await runnerContext.AoCClient.LoadInput(Day.Create(day.Num));
+					var obtained = await runnerContext.AoCClient.LoadInput(Day.Create(day));
 					var sw = Stopwatch.StartNew();
-					runnerContext.Console.MarkupLine($"[[{day.Num:00}/{part.Num}]] :check_mark: Input obtained");
-					ctx.Status($"Calculating answer for {day.Num:00}/{part.Num}");
+					runnerContext.Console.MarkupLine($"[[{day:00}/{part.Num}]] :check_mark: Input obtained");
+					ctx.Status($"Calculating answer for {day:00}/{part.Num}");
 					return (part.Part.SolveString(obtained), sw.Elapsed);
 				});
 
 			if (part.Part.Settings.ManualInterpretation)
 			{
 				AnsiConsole.MarkupLine(
-					$"[[{day.Num:00}/{part.Num}]] :check_mark: Answer calculated in {calculationTime.ToHumanReadable()}");
+					$"[[{day:00}/{part.Num}]] :check_mark: Answer calculated in {calculationTime.ToHumanReadable()}");
 				AnsiConsole.WriteLine(answer);
 				var answerToSubmit = AnsiConsole.Prompt(new TextPrompt<string>("[yellow bold]Interpret the answer manually[/]"));
 				atLeastOneCorrectAnswer |= await SubmitAnswer(runnerContext.AoCClient, day, part, answerToSubmit);
@@ -53,7 +53,7 @@ internal class SubmitAnswersStage(RunnerContext runnerContext)
 			else
 			{
 				runnerContext.Console.MarkupLine(
-					$"[[{day.Num:00}/{part.Num}]] :check_mark: Answer '{answer}' calculated in {calculationTime.ToHumanReadable()}");
+					$"[[{day:00}/{part.Num}]] :check_mark: Answer '{answer}' calculated in {calculationTime.ToHumanReadable()}");
 
 				atLeastOneCorrectAnswer |= await SubmitAnswer(runnerContext.AoCClient, day, part, answer);
 			}
@@ -80,34 +80,34 @@ internal class SubmitAnswersStage(RunnerContext runnerContext)
 		});
 	}
 
-	private async Task<bool> SubmitAnswer(IAoCClient client, RunnerDay day, RunnerPart part, string answer)
+	private async Task<bool> SubmitAnswer(IAoCClient client, int day, RunnerPart part, string answer)
 	{
 		return await new Status(runnerContext.Console).StartAsync($"Submitting answer '{answer}'", async ctx =>
 		{
 			while (true)
 			{
-				var submissionResult = await client.SubmitAnswer(Day.Create(day.Num), Part.Create(part.Num), answer);
+				var submissionResult = await client.SubmitAnswer(Day.Create(day), Part.Create(part.Num), answer);
 				switch (submissionResult)
 				{
 					case SubmissionResult.Correct:
-						runnerContext.Console.MarkupLine($"[[{day.Num:00}/{part.Num}]]");
+						runnerContext.Console.MarkupLine($"[[{day:00}/{part.Num}]]");
 						runnerContext.Console.Write(Renderables.Correct());
 						return true;
 					case SubmissionResult.Incorrect:
-						runnerContext.Console.MarkupLine($"[[{day.Num:00}/{part.Num}]]");
+						runnerContext.Console.MarkupLine($"[[{day:00}/{part.Num}]]");
 						runnerContext.Console.Write(Renderables.Incorrect("wrong"));
 						return false;
 					case SubmissionResult.TooHigh:
-						runnerContext.Console.MarkupLine($"[[{day.Num:00}/{part.Num}]]");
+						runnerContext.Console.MarkupLine($"[[{day:00}/{part.Num}]]");
 						runnerContext.Console.Write(Renderables.Incorrect("too high"));
 						return false;
 					case SubmissionResult.TooLow:
-						runnerContext.Console.MarkupLine($"[[{day.Num:00}/{part.Num}]]");
+						runnerContext.Console.MarkupLine($"[[{day:00}/{part.Num}]]");
 						runnerContext.Console.Write(Renderables.Incorrect("too low"));
 						return false;
 					case SubmissionResult.TooRecently(var toWait):
 						runnerContext.Console.MarkupLine(
-							$"[[{day.Num:00}/{part.Num}]] :timer_clock: Answer given too recently. Need to wait {toWait.ToHumanReadable()}");
+							$"[[{day:00}/{part.Num}]] :timer_clock: Answer given too recently. Need to wait {toWait.ToHumanReadable()}");
 						var timeoutStopwatch = Stopwatch.StartNew();
 						var leftToWait = toWait - timeoutStopwatch.Elapsed;
 						while (leftToWait >= TimeSpan.Zero)
