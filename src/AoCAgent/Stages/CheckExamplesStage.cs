@@ -5,9 +5,9 @@ using Spectre.Console;
 
 namespace mazharenko.AoCAgent.Stages;
 
-internal class CheckExamplesStage(RunnerContext runnerContext, CheckPartExamplesSubStage checkPartExamplesSubStage)
+ internal class CheckExamplesStage(RunnerContext runnerContext, ICheckPartExamplesSubStage checkPartExamplesSubStage)
 {
-	public List<(RunnerDay, RunnerPart, CheckExamplesResult)> CheckExamples(Stats currentStats)
+	public List<(int, RunnerPart, CheckExamplesResult)> CheckExamples(Stats currentStats)
 	{
 		var notSolvedDays =
 			new Status(runnerContext.Console)
@@ -15,15 +15,11 @@ internal class CheckExamplesStage(RunnerContext runnerContext, CheckPartExamples
 				{
 					var notSolvedParts =
 						runnerContext.Year.Days.OrderByDescending(day => day.Num)
-							.Choose(day =>
-							{
-								if (!currentStats.IsSolved(Day.Create(day.Num), Part._1))
-									return (day, day.Part1);
-								if (!currentStats.IsSolved(Day.Create(day.Num), Part._2))
-									return (day, day.Part2);
-
-								return ((RunnerDay, RunnerPart)?)null;
+							.SelectMany(day => new List<(Day day, RunnerPart part)>{
+								(Day.Create(day.Num), day.Part1), 
+								(Day.Create(day.Num), day.Part2)
 							})
+							.Where(tuple => !currentStats.IsSolved(tuple.day, Part.Create(tuple.part.Num)))
 							.ToList();
 					return notSolvedParts;
 				});
@@ -36,7 +32,7 @@ internal class CheckExamplesStage(RunnerContext runnerContext, CheckPartExamples
 
 		runnerContext.Console.MarkupLine(
 			$"Found [yellow bold]{notSolvedDays.Count}[/] not solved days and parts: " +
-			string.Join(", ", notSolvedDays.Select(x => $"{x.Item1.Num:00}/{x.Item2.Num}"))
+			string.Join(", ", notSolvedDays.Select(x => $"{x.day.Num:00}/{x.part.Num}"))
 		);
 		var dayExampleResults =
 			new Status(runnerContext.Console)
@@ -45,9 +41,8 @@ internal class CheckExamplesStage(RunnerContext runnerContext, CheckPartExamples
 					var dayExampleResults =
 						notSolvedDays.Select(x =>
 						{
-							var (day, part) = x;
-							var result = checkPartExamplesSubStage.CheckExamples(day.Num, part);
-							return (day, part, result);
+							var result = checkPartExamplesSubStage.CheckExamples(x.day, x.part);
+							return (x.day.Num, x.part, result);
 						}).ToList();
 
 					return dayExampleResults;

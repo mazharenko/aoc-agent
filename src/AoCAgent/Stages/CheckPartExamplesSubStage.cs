@@ -3,7 +3,12 @@ using Spectre.Console;
 
 namespace mazharenko.AoCAgent.Stages;
 
-internal class CheckPartExamplesSubStage(RunnerContext runnerContext)
+internal interface ICheckPartExamplesSubStage
+{
+	CheckExamplesResult CheckExamples(int dayNum, RunnerPart part);
+}
+
+internal class CheckPartExamplesSubStage(RunnerContext runnerContext) : ICheckPartExamplesSubStage
 {
 	public CheckExamplesResult CheckExamples(int dayNum, RunnerPart part)
 	{
