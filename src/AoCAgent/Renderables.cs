@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using mazharenko.AoCAgent.Misc;
 using Spectre.Console;
 using Spectre.Console.Extensions;
@@ -8,53 +7,10 @@ namespace mazharenko.AoCAgent;
 
 internal static class Renderables
 {
-	private const string TreeTop =
-		"""
-		           
-		            [grey bold underline]*
-		[/]
-		""";
-	private const string TreeTopLit = 
-		"""
-		           [yellow bold]\|/
-		            [underline]*[/]
-		[/]
-		""";
-	private const string TreeDraft = 
-		"""
-		           >o<
-		          >>O<<
-		         >O<<<*<
-		        >@<o<o<o<
-		       >>@>>O<O<<<
-		      >O<o>>>@<<<*<
-		     >>@>>>@<*<<*<<<
-		    >O<<<*<<<O<@<@<<<
-		   >>*<<<*>>o<<<@<<*<<
-		  >@<<<*>>>*>>O<<O<<o<<
-		 >*>>o<*>>O>>>*>>>o>>*<<
-		>O>>*>O>>O<<@>>>@<<<*<@<<
-		           [grey]| |[/]
-		""";
-
-	public static Panel Tree(int starCount)
-	{
-		var count = 0;
-		var treeString1 = Regex.Replace(TreeDraft, "[o]", m => count++ >= starCount ? $"[grey bold]{m.Value}[/]" : $"[orange1 bold]{m.Value}[/]");
-		var treeString2 = Regex.Replace(treeString1, "[O]", m => count++ >= starCount ? $"[grey bold]{m.Value}[/]" : $"[blue1 bold]{m.Value}[/]");
-		var treeString3 = Regex.Replace(treeString2, "[@]", m => count++ >= starCount ? $"[grey bold]{m.Value}[/]" : $"[red1 bold]{m.Value}[/]");
-		var treeString = Regex.Replace(treeString3, "[*]", m => count++ >= starCount ? $"[grey bold]{m.Value}[/]" : $"[yellow1 bold]{m.Value}[/]");
-		var top = count == 50 ? TreeTopLit : TreeTop;
-		return new Panel(
-			new Markup(top + treeString,
-				new Style(Color.Green))
-		).Height(19).Padding(2, 1).NoBorder();
-	}
-	
 	public static IRenderable Splash(int year, int stars = 0)
 	{
 		var grid = new Grid().AddColumn();
-		var tree = Tree(stars);
+		var tree = new Tree(year, stars);
 		grid.AddRow(
 			new Grid().AddColumn().AddColumn()
 				.AddRow(tree, new Panel(
