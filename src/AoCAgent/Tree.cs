@@ -21,7 +21,7 @@ internal class Tree : IRenderable
 		            [underline]*[/]
 		[/]
 		""";
-	private const string TreeDraft = 
+	private const string TreeEmpty = 
 		"""
 		           >><
 		          >><<<
@@ -38,11 +38,34 @@ internal class Tree : IRenderable
 		           [grey]| |[/]
 		""";
 
+	private const string TreeComplete = 
+		"""
+		           >@<
+		          >>@<<
+		         >@<<<@<
+		        >@<@<@<@<
+		       >>@>>@<@<<<
+		      >@<@>>>@<<<@<
+		     >>@>>>@<@<<@<<<
+		    >@<<<@<<<@<@<@<<<
+		   >>@<<<@>>@<<<@<<@<<
+		  >@<<<@>>>@>>@<<@<<@<<
+		 >@>>@<@>>@>>>@>>>@>>@<<
+		>@>>@>@>>@<<@>>>@<<<@<@<<
+		           [grey]| |[/]
+		""";
+	
+	private static readonly List<int> toyIndexes = 
+		Regex.Matches(TreeComplete, "[@]").Select(m => m.Index).ToList();
+	
+	
+	
 	public Tree(int year, int starCount)
 	{
 		var random = new Random(year);
-		var candidateIndexes = 
-			Regex.Matches(TreeDraft, "(?<=[<>])[<>](?=[<>])").Select(m => m.Index).ToList();
+
+		var candidateIndexes = new List<int>(toyIndexes);
+			
 		void Shuffle(IList<int> list)  
 		{  
 			var n = list.Count;  
@@ -53,14 +76,14 @@ internal class Tree : IRenderable
 			} 
 		}
 		Shuffle(candidateIndexes);
+		
 		var indexesToPlaceToy = candidateIndexes.Take(starCount).ToList();
-		var treeArray = TreeDraft.ToCharArray();
+		var treeArray = TreeEmpty.ToCharArray();
 		var toys = new [] {'@', 'o', 'O', '*'};
 		foreach (var i in indexesToPlaceToy) 
 			treeArray[i] = toys[random.Next(toys.Length)];
 		
-		
-		var treeString4 = new string(treeArray)
+		var treeString = new string(treeArray)
 			.Replace("o", "[orange1 bold]o[/]")
 			.Replace("O", "[blue1 bold]O[/]")
 			.Replace("@", "[red1 bold]@[/]")
@@ -69,7 +92,7 @@ internal class Tree : IRenderable
 		
 		var top = starCount == 50 ? TreeTopLit : TreeTop;
 		treePanel = new Panel(
-			new Markup(top + treeString4,
+			new Markup(top + treeString,
 				new Style(Color.Green))
 		).Height(19).Padding(2, 1).NoBorder();
 	}
