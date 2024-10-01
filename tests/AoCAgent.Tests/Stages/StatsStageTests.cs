@@ -8,19 +8,21 @@ namespace AoCAgent.Tests.Stages;
 internal class StatsStageTests : IEnumerable
 {
 	[TestCaseSource(typeof(StatsStageTests))]
-	public async Task Should_Render_Tree(Stats stats)
+	public async Task Should_Render_Tree(int year, Stats stats)
 	{
 		var services = new ServiceCollection();
 		var console = new TestConsole().EmitAnsiSequences();
 		services.AddSingleton<IAnsiConsole>(console);
-		new StatsStage(new RunnerContext(FakeYear.Default, services.BuildServiceProvider()))
+		var yearBase = A.Fake<YearBase>();
+		A.CallTo(() => yearBase.Year).Returns(year);
+		new StatsStage(new RunnerContext(yearBase, services.BuildServiceProvider()))
 			.RenderStats(stats);
-		await Verify(console.Output).UseTextForParameters($"{stats.Stars} stars");
+		await Verify(console.Output).UseTextForParameters($"year {year}_{stats.Stars} stars");
 	}
 
 	public IEnumerator GetEnumerator()
 	{
-		foreach (var stars in new []{0, 28, 50})
+		foreach (var stars in new[] { 0, 28, 50 })
 		{
 			var stats = new Stats();
 			for (var day = 1; day <= 25; day++)
@@ -42,7 +44,9 @@ internal class StatsStageTests : IEnumerable
 				}
 			}
 
-			yield return new TestCaseData(stats).SetArgDisplayNames($"{stats.Stars} stars stats");
+			foreach (var year in new[] { 2020, 2024 })
+				yield return new TestCaseData(year, stats)
+					.SetArgDisplayNames(year.ToString(), $"{stats.Stars} stars stats");
 		}
 	}
 }
