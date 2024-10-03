@@ -5,12 +5,12 @@ namespace mazharenko.AoCAgent.Stages;
 
 internal class FailedExamplesStage(RunnerContext runnerContext)
 {
-	public FailedExamplesResult ReportFailedExamples(List<(int day, RunnerPart part, CheckExamplesResult result)> exampleResults)
+	public FailedExamplesResult ReportFailedExamples(List<(RunnerPart part, CheckExamplesResult result)> exampleResults)
 	{
 		var failedExamples = exampleResults.Choose(x =>
 		{
 			if (x.result is CheckExamplesResult.Failed failed)
-				return (x.day, x.part, failed).ToNullable();
+				return (x.part.Day, x.part, failed).ToNullable();
 			return null;
 		}).ToList();
 
@@ -30,7 +30,7 @@ internal class FailedExamplesStage(RunnerContext runnerContext)
 		{
 			foreach (var (runnerExample, actual, exception) in failed.FailedExamples)
 			{
-				table.AddRow(day.ToString("00"), part.Num.ToString(),
+				table.AddRow(day.ToString(), part.PartNum.ToString(),
 					runnerExample.Name,
 					runnerExample.Example.ExpectationFormatted,
 					$"[red]{Markup.Escape(exception?.Message ?? actual ?? "")}[/]");

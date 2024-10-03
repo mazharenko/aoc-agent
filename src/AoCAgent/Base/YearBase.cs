@@ -10,5 +10,5 @@ public abstract class YearBase
 	[UsedImplicitly]
 	public abstract int Year { get; }
 	[UsedImplicitly]
-	public readonly IList<RunnerDay> Days = new List<RunnerDay>();
+	public readonly IList<RunnerPart> Parts = new List<RunnerPart>();
 }

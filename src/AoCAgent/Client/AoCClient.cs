@@ -14,7 +14,7 @@ internal class AoCClient(int year, string sessionToken, IHttpClientFactory httpC
 		return httpClient;
 	}
 	
-	public async Task<string> LoadInput(Day day)
+	public async Task<string> LoadInput(DayNum day)
 	{
 		using var httpClient = CreateHttpClient();
 		var response = await httpClient.GetAsync($"/{year}/day/{day.Num}/input");
@@ -39,14 +39,14 @@ internal class AoCClient(int year, string sessionToken, IHttpClientFactory httpC
 			return;
 		if (content.Contains("You don't seem to be solving the right level."))
 		{
-			if ((await GetDayResults()).GetValueOrDefault((Day.Create(25), Part._2)))
+			if ((await GetDayResults()).IsSolved(DayNum.Create(25), PartNum._2))
 				return;
 			throw new InvalidOperationException("To acquire star 50, all other puzzles must be solved");
 		}
 		throw new InvalidOperationException("Could not interpret the submission result");
 	}
 
-	public async Task<SubmissionResult> SubmitAnswer(Day day, Part part, string answer)
+	public async Task<SubmissionResult> SubmitAnswer(DayNum day, PartNum part, string answer)
 	{
 		// Congratulations! You've finished every puzzle in Advent of Code 2023
 		var form = new FormUrlEncodedContent(
@@ -66,8 +66,8 @@ internal class AoCClient(int year, string sessionToken, IHttpClientFactory httpC
 		if (content.Contains("That's not the right answer")) return new SubmissionResult.Incorrect();
 		if (content.Contains("You don't seem to be solving the right level."))
 		{
-			if ((await GetDayResults()).TryGetValue((day, part), out var dayResult))
-				return dayResult ? new SubmissionResult.Correct() : new SubmissionResult.Incorrect();
+			if ((await GetDayResults()).IsSolved(day, part))
+				return new SubmissionResult.Correct();
 			throw new InvalidOperationException("Could not interpret the submission result");
 		}
 		var timeLeftRegex = new Regex(@"You have ((?<min>\d+)m )?((?<sec>\d+)s )?left");
@@ -91,12 +91,13 @@ internal class AoCClient(int year, string sessionToken, IHttpClientFactory httpC
 	                                             """);
 	public async Task<Stats> GetDayResults()
 	{
-		var dic = new Stats();
-		await foreach (var (day, part, solved) in _GetDayResults()) 
-			dic.Add((day, part), solved);
-		return dic;
+		var stats = new Stats();
+		await foreach (var (day, part) in _GetDayResults()) 
+			stats.Solved(day, part);
+		return stats;
 	}
-	private async IAsyncEnumerable<(Day, Part, bool)> _GetDayResults()
+	
+	private async IAsyncEnumerable<(DayNum, PartNum)> _GetDayResults()
 	{
 		using var httpClient = CreateHttpClient();
 		var response = await httpClient.GetStringAsync($"/{year}");
@@ -104,20 +105,17 @@ internal class AoCClient(int year, string sessionToken, IHttpClientFactory httpC
 		
 		foreach (Match match in statParsed)
 		{
-			var day = Day.Create(int.Parse(match.Groups["day"].Value));
+			var day = DayNum.Create(int.Parse(match.Groups["day"].Value));
 			switch (match.Groups["stars"].Value)
 			{
 				case "":
-					yield return (day, Part._1, false);
-					yield return (day, Part._2, false);
 					break;
 				case "one star":
-					yield return (day, Part._1, true);
-					yield return (day, Part._2, false);
+					yield return (day, PartNum._1);
 					break;
 				case "two stars":
-					yield return (day, Part._1, true);
-					yield return (day, Part._2, true);
+					yield return (day, PartNum._1);
+					yield return (day, PartNum._2);
 					break;
 				default:
 					throw new InvalidOperationException($"Could not interpret day results: {match.Value}");

@@ -1,48 +1,43 @@
-using mazharenko.AoCAgent.Base;
 using mazharenko.AoCAgent.Client;
-using mazharenko.AoCAgent.Misc;
 using Spectre.Console;
 
 namespace mazharenko.AoCAgent.Stages;
 
  internal class CheckExamplesStage(RunnerContext runnerContext, ICheckPartExamplesSubStage checkPartExamplesSubStage)
 {
-	public List<(int, RunnerPart, CheckExamplesResult)> CheckExamples(Stats currentStats)
+	public List<(RunnerPart part, CheckExamplesResult result)> CheckExamples(Stats currentStats)
 	{
-		var notSolvedDays =
+		var notSolvedParts =
 			new Status(runnerContext.Console)
 				.Start("Checking if there are days and parts that are implemented but not solved yet", ctx =>
 				{
 					var notSolvedParts =
-						runnerContext.Year.Days.OrderByDescending(day => day.Num)
-							.SelectMany(day => new List<(Day day, RunnerPart part)>{
-								(Day.Create(day.Num), day.Part1), 
-								(Day.Create(day.Num), day.Part2)
-							})
-							.Where(tuple => !currentStats.IsSolved(tuple.day, Part.Create(tuple.part.Num)))
+						runnerContext.Year.Parts.OrderByDescending(part => part.Day)
+							.Where(part => !currentStats.IsSolved(DayNum.Create(part.Day), PartNum.Create(part.PartNum)))
 							.ToList();
 					return notSolvedParts;
 				});
 
-		if (notSolvedDays.Count == 0)
+		if (notSolvedParts.Count == 0)
 		{
 			runnerContext.Console.MarkupLine("[green bold]There are no days that are not solved yet[/]");
 			return [];
 		}
 
 		runnerContext.Console.MarkupLine(
-			$"Found [yellow bold]{notSolvedDays.Count}[/] not solved days and parts: " +
-			string.Join(", ", notSolvedDays.Select(x => $"{x.day.Num:00}/{x.part.Num}"))
+			$"Found [yellow bold]{notSolvedParts.Count}[/] not solved days and parts: " +
+			string.Join(", ", notSolvedParts.Select(x => $"{x.Day:00}/{x.PartNum}"))
 		);
 		var dayExampleResults =
 			new Status(runnerContext.Console)
 				.Start("Calculating examples", ctx =>
 				{
 					var dayExampleResults =
-						notSolvedDays.Select(x =>
+						notSolvedParts.Select(part =>
 						{
-							var result = checkPartExamplesSubStage.CheckExamples(x.day, x.part);
-							return (x.day.Num, x.part, result);
+							var result = checkPartExamplesSubStage.CheckExamples(part);
+							Thread.Sleep(500);
+							return (part, result);
 						}).ToList();
 
 					return dayExampleResults;

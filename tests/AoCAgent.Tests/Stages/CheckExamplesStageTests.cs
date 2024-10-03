@@ -10,19 +10,20 @@ internal class CheckExamplesStageTests
 	public async Task Should_Return_Empty_When_No_Not_Solved()
 	{
 		var year = FakeYear.Default
-			.WithDay(1, FakePart.Strict, FakePart.Strict)
-			.WithDay(2, FakePart.Strict, FakePart.Strict);
-		var stats = new Stats
-		{
-			{ Day.Create(1), Part._1, true }, // solved and implemented
-			{ Day.Create(1), Part._2, true }, // solved and implemented
-			{ Day.Create(2), Part._1, true }, // solved and implemented
-			{ Day.Create(2), Part._2, true }, // solved and implemented
-			{ Day.Create(3), Part._1, true }, // solved and not implemented
-			{ Day.Create(3), Part._2, true }, // solved and not implemented
-			{ Day.Create(4), Part._1, false }, // neither solved nor implemented
-			{ Day.Create(4), Part._2, false }, // neither solved nor implemented
-		};
+			.WithPart(1, 1, FakePart.Strict)
+			.WithPart(1, 2, FakePart.Strict)
+			.WithPart(2, 1, FakePart.Strict)
+			.WithPart(2, 2, FakePart.Strict);
+		
+		var stats = new Stats()
+			.Solved(DayNum.Create(1), PartNum._1) // solved and implemented
+			.Solved(DayNum.Create(1), PartNum._2) // solved and implemented
+			.Solved(DayNum.Create(2), PartNum._1) // solved and implemented
+			.Solved(DayNum.Create(2), PartNum._2) // solved and implemented
+			.Solved(DayNum.Create(3), PartNum._1) // solved and not implemented
+			.Solved(DayNum.Create(3), PartNum._2) // solved and not implemented
+			.NotSolved(DayNum.Create(4), PartNum._1) // neither solved nor implemented
+			.NotSolved(DayNum.Create(4), PartNum._2); // neither solved nor implemented
 
 		var services = new ServiceCollection();
 		var console = new TestConsole().EmitAnsiSequences();
@@ -35,76 +36,48 @@ internal class CheckExamplesStageTests
 	}
 
 	[Test]
-	// todo refactor integer and typed day and part nums and this will become better?
-	// todo emphasize that the order is checked?
 	public async Task Should_Call_SubStage_For_Not_Solved()
 	{
 		var year = FakeYear.Default;
 
-		void SetImplemented(int dayNum, RunnerPart part1, RunnerPart part2) =>
-			year.Days.Add(new RunnerDay(dayNum, part1, part2));
+		void SetImplemented(RunnerPart part) =>
+			year.Parts.Add(part);
 
 		var stats = new Stats();
-		void SetSolved((int, RunnerPart) x) => stats.Add(Day.Create(x.Item1), Part.Create(x.Item2.Num), true);
-		void SetNotSolved((int, RunnerPart) x) => stats.Add(Day.Create(x.Item1), Part.Create(x.Item2.Num), false);
+		void SetSolved(RunnerPart part) => stats.Solved(DayNum.Create(part.Day), PartNum.Create(part.PartNum));
+		void SetNotSolved(RunnerPart part) => stats.NotSolved(DayNum.Create(part.Day), PartNum.Create(part.PartNum));
 
-		var solvedAndImplemented = (day: 1, part: new RunnerPart(1, A.Fake<IPart>()));
+		var solvedAndImplemented = new RunnerPart(DayNum.Create(1), PartNum._1, A.Fake<IPart>());
 		SetSolved(solvedAndImplemented);
-		// expected to skip
+		SetImplemented(solvedAndImplemented);
 
-		var notSolvedButImplemented = (day: 1, part: new RunnerPart(2, A.Fake<IPart>()));
+		var notSolvedButImplemented = new RunnerPart(DayNum.Create(1), PartNum._2, A.Fake<IPart>());
 		SetNotSolved(notSolvedButImplemented);
-		SetImplemented(1, solvedAndImplemented.part, notSolvedButImplemented.part);
+		SetImplemented(notSolvedButImplemented);
 		var notSolvedButImplementedExpectedResult = new CheckExamplesResult.AllCorrect();
 
-		var notSolvedButImplemented2 = (day: 2, part: new RunnerPart(1, A.Fake<IPart>()));
-		SetNotSolved(notSolvedButImplemented2);
-		var notSolvedButImplemented2ExpectedResult = new CheckExamplesResult.AllCorrect();
-
-		var notSolvedButImplemented3 = (day: 2, part: new RunnerPart(2, A.Fake<IPart>()));
-		SetNotSolved(notSolvedButImplemented3);
-		SetImplemented(2, notSolvedButImplemented2.part, notSolvedButImplemented3.part);
-		var notSolvedButImplemented3ExpectedResult = new CheckExamplesResult.AllCorrect();
-
-		var solvedAndNotImplemented = (day: 4, part: new RunnerPart(1, A.Fake<IPart>()));
+		var solvedAndNotImplemented = new RunnerPart(DayNum.Create(4), PartNum._1, A.Fake<IPart>());
 		SetSolved(solvedAndNotImplemented);
-		var neitherSolvedNorImplemented = (day: 4, part: new RunnerPart(2, A.Fake<IPart>()));
+		
+		var neitherSolvedNorImplemented = new RunnerPart(DayNum.Create(4), PartNum._2, A.Fake<IPart>());
 		SetNotSolved(neitherSolvedNorImplemented);
-		// expected to skip
 
 		var services = new ServiceCollection();
 		var console = new TestConsole().EmitAnsiSequences();
 		services.AddSingleton<IAnsiConsole>(console);
 
-		var subStage = A.Fake<ICheckPartExamplesSubStage>(o => o.Strict());
-		A.CallTo(() => subStage.CheckExamples(notSolvedButImplemented.day, notSolvedButImplemented.part))
+		var subStage = A.Fake<ICheckPartExamplesSubStage>();
+		A.CallTo(() => subStage.CheckExamples(notSolvedButImplemented))
 			.Returns(notSolvedButImplementedExpectedResult);
-		A.CallTo(() => subStage.CheckExamples(notSolvedButImplemented2.day, notSolvedButImplemented2.part))
-			.Returns(notSolvedButImplemented2ExpectedResult);
-		A.CallTo(() => subStage.CheckExamples(notSolvedButImplemented3.day, notSolvedButImplemented3.part))
-			.Returns(notSolvedButImplemented3ExpectedResult);
 
 		var stage = new CheckExamplesStage(new RunnerContext(year, services.BuildServiceProvider()), subStage);
-		stage.CheckExamples(stats).Should().SatisfyRespectively(
-			res =>
-			{
-				res.Item1.Should().Be(notSolvedButImplemented2.day);
-				res.Item2.Should().Be(notSolvedButImplemented2.part);
-				res.Item3.Should().BeSameAs(notSolvedButImplemented2ExpectedResult);
-			},
-			res =>
-			{
-				res.Item1.Should().Be(notSolvedButImplemented3.day);
-				res.Item2.Should().Be(notSolvedButImplemented3.part);
-				res.Item3.Should().BeSameAs(notSolvedButImplemented3ExpectedResult);
-			},
-			res =>
-			{
-				res.Item1.Should().Be(notSolvedButImplemented.day);
-				res.Item2.Should().Be(notSolvedButImplemented.part);
-				res.Item3.Should().BeSameAs(notSolvedButImplementedExpectedResult);
-			}
-		);
+		var result = stage.CheckExamples(stats);
+		
+		result.Should().NotContain(x => x.part == solvedAndImplemented, "it is solved but implemented");
+		result.Should().NotContain(x => x.part == neitherSolvedNorImplemented, "it is neither solved nor implemented");
+		result.Should().NotContain(x => x.part == solvedAndNotImplemented, "it is solved and not implemented");
+		result.Should().Contain((notSolvedButImplemented, notSolvedButImplementedExpectedResult), "it is solved and implemented");
+		
 		await Verify(console.Output);
 	}
 }

@@ -223,7 +223,7 @@ internal partial class DaysGenerator : IIncrementalGenerator
 								var yearClass = explicitYear?.Number == yearNum
 									? new YearClass(yearNum, $"Year{yearNum}", explicitYear.Value.Syntax.GetContainingNamespace()?.ToString())
 									: new YearClass(yearNum, $"Year{yearNum}", "mazharenko.AoCAgent.GeneratedAgent");
-								return new YearSource(yearClass, yearDays.ToImmutableArray());
+								return new YearSource(yearClass, yearDays.OrderBy(d => d.Number).ToImmutableArray());
 							}
 						);
 					}

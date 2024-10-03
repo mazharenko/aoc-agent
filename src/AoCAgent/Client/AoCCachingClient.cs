@@ -5,7 +5,7 @@ namespace mazharenko.AoCAgent.Client;
 
 internal class AoCCachingClient(int year, IAoCClient underlyingClient) : IAoCClient
 {
-	public async Task<string> LoadInput(Day day)
+	public async Task<string> LoadInput(DayNum day)
 	{
 		using var db = ConnectToDb();
 		var inputs = db.GetCollection<DbPuzzleInput>()!;
@@ -33,14 +33,14 @@ internal class AoCCachingClient(int year, IAoCClient underlyingClient) : IAoCCli
 		using var db = ConnectToDb();
 		await underlyingClient.AcquireStar50();
 		var stats = db.GetCollection<DbStats>().Query().FirstOrDefault();
-		stats.Stats =
-			stats.Stats.Prepend(new DbDayPartStat { Id = new DbPartId(Day.Create(25), Part._2), Solved = true })
-				.DistinctBy(stat => stat.Id)
+		stats.Solved =
+			stats.Solved.Append(new DbPartId(DayNum.Create(25), PartNum._2))
+				.Distinct()
 				.ToList();
 		db.GetCollection<DbStats>().Update(stats);
 	}
 
-	public async Task<SubmissionResult> SubmitAnswer(Day day, Part part, string answer)
+	public async Task<SubmissionResult> SubmitAnswer(DayNum day, PartNum part, string answer)
 	{
 		using var db = ConnectToDb();
 		var existingAttempt = db.GetCollection<DbAttempt>().FindOne(attempt =>
@@ -80,9 +80,9 @@ internal class AoCCachingClient(int year, IAoCClient underlyingClient) : IAoCCli
 		if (result is SubmissionResult.Correct)
 		{// todo extract?
 			var stats = db.GetCollection<DbStats>().Query().FirstOrDefault();
-			stats.Stats = 
-				stats.Stats.Prepend(new DbDayPartStat { Id = new DbPartId(day, part), Solved = true })
-				.DistinctBy(stat => stat.Id)
+			stats.Solved = 
+				stats.Solved.Append(new DbPartId(day, part))
+				.Distinct()
 				.ToList();
 			db.GetCollection<DbStats>().Update(stats);
 		}
@@ -95,21 +95,18 @@ internal class AoCCachingClient(int year, IAoCClient underlyingClient) : IAoCCli
 		using var db = ConnectToDb();
 		var stats = db.GetCollection<DbStats>().Query().FirstOrDefault();
 		if (stats is not null && stats.Timestamp > DateTime.Now.AddHours(-2))
-			return new Stats(stats.Stats.ToDictionary(
-				x => (Day.Create(x.Id.DayNum), Part.Create(x.Id.Part)),
-				x => x.Solved
-			));
+			return new Stats(
+				stats.Solved
+					.Select(x => (DayNum.Create(x.DayNum), PartNum.Create(x.Part)))
+					.ToHashSet()
+				);
 
 		var actualResults = await underlyingClient.GetDayResults();
 		db.GetCollection<DbStats>().Upsert(
 			new DbStats
 			{
-				Stats = actualResults.Select(
-					x => new DbDayPartStat
-					{
-						Id = new DbPartId(x.Key.Item1.Num, x.Key.Item2.Num),
-						Solved = x.Value
-					}
+				Solved = actualResults.GetSolved().Select(
+					x => new DbPartId(x.day.Num, x.day.Num)
 				).ToList(),
 				Timestamp = DateTime.Now
 			}

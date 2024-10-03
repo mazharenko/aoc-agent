@@ -6,4 +6,4 @@ namespace mazharenko.AoCAgent;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 [UsedImplicitly]
-public record RunnerPart(int Num, IPart Part);
+public record RunnerPart(DayNum Day, PartNum PartNum, IPart Part);

@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using LiteDB;
 
 namespace mazharenko.AoCAgent.Client;
@@ -10,18 +11,13 @@ internal record DbPuzzleInput
 
 internal record DbPartId(int DayNum, int Part);
 
-internal record DbDayPartStat
-{
-	public required DbPartId Id { get; init; }
-	public required bool Solved { get; set; }
-}
-
 internal record DbStats
 {
 	[BsonId]
+	[UsedImplicitly]
 	public int Id => 1;
 
-	public required IList<DbDayPartStat> Stats { get; set; }
+	public required IList<DbPartId> Solved { get; set; }
 	public required DateTime Timestamp { get; set; }
 }
 

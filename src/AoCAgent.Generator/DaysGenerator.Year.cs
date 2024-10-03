@@ -26,7 +26,8 @@ internal partial class DaysGenerator
 							Block(yearSource.DaySources.SelectMany(AddDaySyntax))
 						),
 					PropertyDeclaration(PredefinedType(Token(SyntaxKind.IntKeyword)), Identifier("Year"))
-						.WithExpressionBody(ArrowExpressionClause(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(yearSource.YearClass.Num))))
+						.WithExpressionBody(ArrowExpressionClause(LiteralExpression(SyntaxKind.NumericLiteralExpression,
+							Literal(yearSource.YearClass.Num))))
 						.WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
 						.AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.OverrideKeyword))
 				);
@@ -65,58 +66,53 @@ internal partial class DaysGenerator
 
 	private static IEnumerable<StatementSyntax> AddPartSyntax(DaySource day, int partNum, ClassDeclarationSyntax part, INamedTypeSymbol partType)
 	{
-		var exampleFields =
-			part.Members.OfType<FieldDeclarationSyntax>()
-				.Where(field => field.Modifiers.Any(modifier =>
-					modifier.IsKind(SyntaxKind.PublicKeyword)
-					|| modifier.IsKind(SyntaxKind.InternalKeyword)));
-        
-        yield return Declare($"day{day.Number}part{partNum}",
-        	ObjectCreationExpression(ParseTypeName(partType.ToDisplayString()))
-        		.WithArgumentList(ArgumentList())
-        );
-        yield return Declare($"day{day.Number}RunnerPart{partNum}",
-	        ObjectCreationExpression(IdentifierName("RunnerPart"))
-		        .WithArgumentList(ArgumentList(
-			        SeparatedList(new ExpressionSyntax[]
-			        {
-				        LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(partNum)),
-				        IdentifierName($"day{day.Number}part{partNum}"),
-			        }.Select(Argument))
-		        ))
-        );
-	}
-	
-	private static IEnumerable<StatementSyntax> AddDaySyntax(DaySource day)
-	{
-		foreach (var part in AddPartSyntax(day, 1, day.Part1.PartClass, day.Part1.PartType))
-        	yield return part;
-		foreach (var part in AddPartSyntax(day, 2, day.Part2.PartClass, day.Part2.PartType))
-			yield return part;
-		
+		yield return Declare($"day{day.Number}part{partNum}",
+			ObjectCreationExpression(ParseTypeName(partType.ToDisplayString()))
+				.WithArgumentList(ArgumentList())
+		);
+		var dayNumExpression = InvocationExpression(
+			MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("DayNum"), IdentifierName("Create"))
+		).WithArgumentList(
+			ArgumentList(SingletonSeparatedList(
+				Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(day.Number))))
+			));
+		var partNumExpression = InvocationExpression(
+			MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("PartNum"), IdentifierName("Create"))
+		).WithArgumentList(
+			ArgumentList(SingletonSeparatedList(
+				Argument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(partNum))))
+			));
+		yield return Declare($"day{day.Number}RunnerPart{partNum}",
+			ObjectCreationExpression(IdentifierName("RunnerPart"))
+				.WithArgumentList(ArgumentList(
+					SeparatedList(new ExpressionSyntax[]
+					{
+						dayNumExpression,
+						partNumExpression,
+						IdentifierName($"day{day.Number}part{partNum}"),
+					}.Select(Argument))
+				))
+		);
 		yield return ExpressionStatement(
 			InvocationExpression(
 				MemberAccessExpression(
 					SyntaxKind.SimpleMemberAccessExpression,
-					IdentifierName("Days"),
+					IdentifierName("Parts"),
 					IdentifierName("Add")
 				)
 			).WithArgumentList(
-				ArgumentList(
-					SingletonSeparatedList(
-						Argument(
-							ObjectCreationExpression(IdentifierName("RunnerDay"))
-								.WithArgumentList(ArgumentList(
-									SeparatedList(new ExpressionSyntax[] {
-										LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(day.Number)),
-										IdentifierName($"day{day.Number}RunnerPart1"),
-										IdentifierName($"day{day.Number}RunnerPart2")
-									}.Select(Argument))	
-								))
-						)
-					)
+				ArgumentList(SingletonSeparatedList(
+					Argument(IdentifierName($"day{day.Number}RunnerPart{partNum}") ))
 				)
 			)
 		);
+	}
+
+	private static IEnumerable<StatementSyntax> AddDaySyntax(DaySource day)
+	{
+		foreach (var part in AddPartSyntax(day, 1, day.Part1.PartClass, day.Part1.PartType))
+			yield return part;
+		foreach (var part in AddPartSyntax(day, 2, day.Part2.PartClass, day.Part2.PartType))
+			yield return part;
 	}
 }

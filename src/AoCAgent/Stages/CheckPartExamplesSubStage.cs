@@ -5,23 +5,23 @@ namespace mazharenko.AoCAgent.Stages;
 
 internal interface ICheckPartExamplesSubStage
 {
-	CheckExamplesResult CheckExamples(int dayNum, RunnerPart part);
+	CheckExamplesResult CheckExamples(RunnerPart part);
 }
 
 internal class CheckPartExamplesSubStage(RunnerContext runnerContext) : ICheckPartExamplesSubStage
 {
-	public CheckExamplesResult CheckExamples(int dayNum, RunnerPart part)
+	public CheckExamplesResult CheckExamples(RunnerPart part)
 	{
 		var examples = part.Part.GetExamples().ToList();
 		if (examples.Count == 0 && part.Part.Settings.BypassNoExamples)
 		{
-			runnerContext.Console.MarkupLine($"Day {dayNum:00} Part {part.Num} - [green bold]no examples[/]");
+			runnerContext.Console.MarkupLine($"Day {part.Day:00} Part {part.PartNum} - [green bold]no examples[/]");
 			return new CheckExamplesResult.SkipNoExamples();
 		}
 
 		if (examples.Count == 0)
 		{
-			runnerContext.Console.MarkupLine($"Day {dayNum:00} Part {part.Num} - [grey]no examples[/]");
+			runnerContext.Console.MarkupLine($"Day {part.Day:00} Part {part.PartNum} - [grey]no examples[/]");
 			return new CheckExamplesResult.NoExamples();
 		}
 
@@ -36,7 +36,7 @@ internal class CheckPartExamplesSubStage(RunnerContext runnerContext) : ICheckPa
 			}
 			catch (NotImplementedException)
 			{
-				runnerContext.Console.MarkupLine($"Day {dayNum:00} Part {part.Num} - [grey]not implemented[/]");
+				runnerContext.Console.MarkupLine($"Day {part.Day:00} Part {part.PartNum} - [grey]not implemented[/]");
 				return new CheckExamplesResult.NotImplemented();
 			}
 			catch (Exception e)
@@ -47,11 +47,11 @@ internal class CheckPartExamplesSubStage(RunnerContext runnerContext) : ICheckPa
 
 		if (failedExamples.Count == 0)
 		{
-			runnerContext.Console.MarkupLine($"Day {dayNum:00} Part {part.Num} - [green bold]all correct[/]");
+			runnerContext.Console.MarkupLine($"Day {part.Day:00} Part {part.PartNum} - [green bold]all correct[/]");
 			return new CheckExamplesResult.AllCorrect();
 		}
 
-		runnerContext.Console.MarkupLine($"Day {dayNum:00} Part {part.Num} - [red]failed {failedExamples.Count} examples[/]");
+		runnerContext.Console.MarkupLine($"Day {part.Day:00} Part {part.PartNum} - [red]failed {failedExamples.Count} examples[/]");
 		return new CheckExamplesResult.Failed(failedExamples);
 	}
 }

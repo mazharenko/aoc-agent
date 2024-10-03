@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-
 namespace mazharenko.AoCAgent.Client;
 
 internal abstract record SubmissionResult
@@ -12,34 +10,48 @@ internal abstract record SubmissionResult
 	public record TooRecently(TimeSpan LeftToWait) : SubmissionResult;
 }
 
-internal class Stats : Dictionary<(Day, Part), bool>
+internal class Stats(ISet<(DayNum, PartNum)> solvedParts)
 {
-	public Stats()
-	{
-	}
-	public Stats(IDictionary<(Day, Part), bool> dictionary) : base(dictionary)
+	public Stats() : this(new HashSet<(DayNum, PartNum)>())
 	{
 	}
 
-	public bool IsSolved(Day day, Part part)
+	public bool IsSolved(DayNum day, PartNum part)
 	{
-		return this.GetValueOrDefault((Day.Create(day.Num), part), false);
+		return solvedParts.Contains((day, part));
 	}
 
-	public void Add(Day day, Part part, bool solved) => Add((day, part), solved);
-
-	public int Stars => this.Count(x => x.Value);
-
-	public bool AllComplete()
+	public Stats Solved(DayNum day, PartNum part)
 	{
-		return Stars == 50;
+		solvedParts.Add((day, part));
+		return this;
 	}
+
+	public void Add(DayNum day, PartNum part, bool solved)
+	{
+		if (solved)
+			Solved(day, part);
+		else 
+			NotSolved(day, part);
+	}
+
+	public Stats NotSolved(DayNum day, PartNum part)
+	{
+		solvedParts.Remove((day, part));
+		return this;
+	}
+
+	public IEnumerable<(DayNum day, PartNum part)> GetSolved() => solvedParts;
+
+	public int Stars => solvedParts.Count;
+
+	public bool AllComplete() => Stars == 50;
 }
 
 internal interface IAoCClient 
 {
-	Task<string> LoadInput(Day day);
-	Task<SubmissionResult> SubmitAnswer(Day day, Part part, string answer);
+	Task<string> LoadInput(DayNum day);
+	Task<SubmissionResult> SubmitAnswer(DayNum day, PartNum part, string answer);
 	Task<Stats> GetDayResults();
 	Task AcquireStar50();
 }
