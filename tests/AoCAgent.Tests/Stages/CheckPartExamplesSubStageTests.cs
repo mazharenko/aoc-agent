@@ -179,7 +179,7 @@ internal class CheckPartExamplesSubStageTests
 		services.AddSingleton<IAnsiConsole>(console);
 
 		var stage = new CheckPartExamplesSubStage(new RunnerContext(FakeYear.Default, services.BuildServiceProvider()));
-		var value = stage.CheckExamples(10, part.RunnerPart2());
+		var value = stage.CheckExamples(part.RunnerPart(10, 2));
 		return new ConsoleEffect<CheckExamplesResult>
 		{
 			Console = console.Output, 

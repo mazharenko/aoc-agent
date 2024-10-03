@@ -22,25 +22,15 @@ internal class StatsStageTests : IEnumerable
 
 	public IEnumerator GetEnumerator()
 	{
-		foreach (var stars in new[] { 0, 28, 50 })
+		foreach (var solvedDays in new[] { 0, 14, 25 })
 		{
 			var stats = new Stats();
 			for (var day = 1; day <= 25; day++)
 			{
-				if (stars / 2 >= day)
+				if (day <= solvedDays)
 				{
-					stats.Add(Day.Create(day), Part._1, true);
-					stats.Add(Day.Create(day), Part._2, true);
-				}
-				else if ((stars + 1) / 2 >= day)
-				{
-					stats.Add(Day.Create(day), Part._1, true);
-					stats.Add(Day.Create(day), Part._2, false);
-				}
-				else
-				{
-					stats.Add(Day.Create(day), Part._1, false);
-					stats.Add(Day.Create(day), Part._2, false);
+					stats.Solved(DayNum.Create(day), PartNum._1);
+					stats.Solved(DayNum.Create(day), PartNum._2);
 				}
 			}
 

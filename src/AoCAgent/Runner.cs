@@ -2,11 +2,9 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 using mazharenko.AoCAgent.Base;
 using mazharenko.AoCAgent.Client;
-using mazharenko.AoCAgent.Misc;
 using mazharenko.AoCAgent.Stages;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
-using Stateless;
 
 namespace mazharenko.AoCAgent;
 
@@ -218,7 +216,7 @@ public class Runner
 			}
 		});*/
 	}
-
+/*
 	private static List<(RunnerDay day, RunnerPart part)> CollectCandidates(YearBase year, Stats currentStats,
 		out List<(RunnerDay day, RunnerPart part, CheckExamplesResult.Failed failed)> failedExamples)
 	{
@@ -227,7 +225,7 @@ public class Runner
 				.Start("Checking if there are days that are implemented but not solved yet", ctx =>
 				{
 					var notSolvedDays =
-						year.Days.OrderByDescending(day => day.Num)
+						year.Parts.OrderByDescending(day => day.Num)
 							.Select(day =>
 							{
 								if (!currentStats.IsSolved(Day.Create(day.Num), Part._1))
@@ -320,5 +318,5 @@ public class Runner
 		if (failedExamples.Count == 0)
 			return new CheckExamplesResult.AllCorrect();
 		return new CheckExamplesResult.Failed(failedExamples);
-	}
+	}*/
 }

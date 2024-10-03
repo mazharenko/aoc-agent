@@ -2,17 +2,17 @@ namespace AoCAgent.Tests.Stages;
 
 internal static class FakeExtensions
 {
-	public static RunnerPart RunnerPart1(this IPart part) => new(1, part);
-	public static RunnerPart RunnerPart2(this IPart part) => new(2, part);
+	public static RunnerPart RunnerPart(this IPart part, int dayNum, int partNum) 
+		=> new(DayNum.Create(dayNum), PartNum.Create(partNum), part);
 
 	public static NamedExample Named(this IExample<object> example, string name)
 	{
 		return new NamedExample(name, example);
 	}
 
-	public static YearBase WithDay(this YearBase year, int num, IPart part1, IPart part2)
+	public static YearBase WithPart(this YearBase year, int dayNum, int partNum, IPart part)
 	{
-		year.Days.Add(new RunnerDay(num, part1.RunnerPart1(), part2.RunnerPart2()));
+		year.Parts.Add(part.RunnerPart(dayNum, partNum));
 		return year;
 	}
 }
