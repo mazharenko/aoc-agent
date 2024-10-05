@@ -20,11 +20,9 @@ public interface IExample<out TRes>
 // sadly, covariance for value types is a nonsense 
 [EditorBrowsable(EditorBrowsableState.Never)]
 [UsedImplicitly]
-public class ExampleAdapter<TRes> : IExample<object>
+public class ExampleAdapter<TRes>(IExample<TRes> example) : IExample<object>
 	where TRes : struct
 {
-	private readonly IExample<TRes> example;
-	public ExampleAdapter(IExample<TRes> example) => this.example = example;
 	public object Expectation => example.Expectation;
 	public string ExpectationFormatted => example.ExpectationFormatted;
 	public object Run() => example.Run();

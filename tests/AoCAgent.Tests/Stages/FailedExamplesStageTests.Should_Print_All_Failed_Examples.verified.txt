@@ -1,0 +1,11 @@
+﻿[1;38;5;11mPlease revise failed examples[0m
+                                                                                
+  Day   Part   Example                Expected               Actual             
+────────────────────────────────────────────────────────────────────────────────
+  01    1      failedExample          failed expected        [38;5;9mfailed actual[0m      
+  01    1      failedWithExceptionE   failed with ex         [38;5;9mexception message[0m  
+               xample                 expected                                  
+  01    2      failedExample          failed expected        [38;5;9mfailed actual[0m      
+  01    2      failedWithExceptionE   failed with ex         [38;5;9mexception message[0m  
+               xample                 expected                                  
+                                                                                
