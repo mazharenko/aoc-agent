@@ -1,0 +1,13 @@
+﻿<Solution>
+  <Folder Name="/paket/">
+    <File Path="paket.dependencies" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src\AoCAgent.Generator.Attributes\AoCAgent.Generator.Attributes.csproj" Type="Classic C#" />
+    <Project Path="src\AoCAgent.Generator\AoCAgent.Generator.csproj" Type="Classic C#" />
+    <Project Path="src\AoCAgent\AoCAgent.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests\AoCAgent.Tests\AoCAgent.Tests.csproj" Type="Classic C#" />
+  </Folder>
+</Solution>
