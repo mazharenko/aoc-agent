@@ -1,55 +1,53 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.0.31903.59
+VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{CF209BE4-D6EE-432B-AEE3-C725CBEA4724}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{82638B09-928B-4536-A0A2-F9C0116A5CF0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AoCAgent", "src\AoCAgent\AoCAgent.csproj", "{214DC8F6-689C-4E96-BCFA-134A15064303}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AoCAgent.Tests", "tests\AoCAgent.Tests\AoCAgent.Tests.csproj", "{57164105-C477-4FB0-9A53-9B2490AFA010}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AoCAgent.Generator", "src\AoCAgent.Generator\AoCAgent.Generator.csproj", "{B397C0DA-B887-4FBE-B86A-C4667149BB74}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1B06B11D-068D-44BF-88DA-06D2C473AC50}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AoCAgent.Generator.Attributes", "src\AoCAgent.Generator.Attributes\AoCAgent.Generator.Attributes.csproj", "{B16E0685-24F9-4895-8EC7-4D5FB433D166}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AoCAgent.Generator.Attributes", "src\AoCAgent.Generator.Attributes\AoCAgent.Generator.Attributes.csproj", "{B79C27B1-EAC5-453F-BD46-9ADE69A09447}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{799E24CF-11F7-46C4-80C5-1D2CA24E1E49}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AoCAgent.Generator", "src\AoCAgent.Generator\AoCAgent.Generator.csproj", "{992FE973-BB28-4F5C-911F-F1B7A9507C9D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AoCAgent.Tests", "tests\AoCAgent.Tests\AoCAgent.Tests.csproj", "{B778619D-05C8-4123-BF0E-078D1FBD4824}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "paket", "paket", "{BE9DACEB-FCE1-4B51-89D5-D7E993F91F02}"
-	ProjectSection(SolutionItems) = preProject
-		paket.dependencies = paket.dependencies
-	EndProjectSection
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AoCAgent", "src\AoCAgent\AoCAgent.csproj", "{CE93C9C5-9130-460B-94D2-8040AD1E4E21}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{57164105-C477-4FB0-9A53-9B2490AFA010}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57164105-C477-4FB0-9A53-9B2490AFA010}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57164105-C477-4FB0-9A53-9B2490AFA010}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57164105-C477-4FB0-9A53-9B2490AFA010}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B79C27B1-EAC5-453F-BD46-9ADE69A09447}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B79C27B1-EAC5-453F-BD46-9ADE69A09447}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B79C27B1-EAC5-453F-BD46-9ADE69A09447}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B79C27B1-EAC5-453F-BD46-9ADE69A09447}.Release|Any CPU.Build.0 = Release|Any CPU
+		{992FE973-BB28-4F5C-911F-F1B7A9507C9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{992FE973-BB28-4F5C-911F-F1B7A9507C9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{992FE973-BB28-4F5C-911F-F1B7A9507C9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{992FE973-BB28-4F5C-911F-F1B7A9507C9D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE93C9C5-9130-460B-94D2-8040AD1E4E21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE93C9C5-9130-460B-94D2-8040AD1E4E21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE93C9C5-9130-460B-94D2-8040AD1E4E21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE93C9C5-9130-460B-94D2-8040AD1E4E21}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{214DC8F6-689C-4E96-BCFA-134A15064303} = {CF209BE4-D6EE-432B-AEE3-C725CBEA4724}
-		{B397C0DA-B887-4FBE-B86A-C4667149BB74} = {CF209BE4-D6EE-432B-AEE3-C725CBEA4724}
-		{B16E0685-24F9-4895-8EC7-4D5FB433D166} = {CF209BE4-D6EE-432B-AEE3-C725CBEA4724}
-		{B778619D-05C8-4123-BF0E-078D1FBD4824} = {799E24CF-11F7-46C4-80C5-1D2CA24E1E49}
+		{57164105-C477-4FB0-9A53-9B2490AFA010} = {82638B09-928B-4536-A0A2-F9C0116A5CF0}
+		{B79C27B1-EAC5-453F-BD46-9ADE69A09447} = {1B06B11D-068D-44BF-88DA-06D2C473AC50}
+		{992FE973-BB28-4F5C-911F-F1B7A9507C9D} = {1B06B11D-068D-44BF-88DA-06D2C473AC50}
+		{CE93C9C5-9130-460B-94D2-8040AD1E4E21} = {1B06B11D-068D-44BF-88DA-06D2C473AC50}
 	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{214DC8F6-689C-4E96-BCFA-134A15064303}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{214DC8F6-689C-4E96-BCFA-134A15064303}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{214DC8F6-689C-4E96-BCFA-134A15064303}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{214DC8F6-689C-4E96-BCFA-134A15064303}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B397C0DA-B887-4FBE-B86A-C4667149BB74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B397C0DA-B887-4FBE-B86A-C4667149BB74}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B397C0DA-B887-4FBE-B86A-C4667149BB74}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B397C0DA-B887-4FBE-B86A-C4667149BB74}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B16E0685-24F9-4895-8EC7-4D5FB433D166}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B16E0685-24F9-4895-8EC7-4D5FB433D166}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B16E0685-24F9-4895-8EC7-4D5FB433D166}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B16E0685-24F9-4895-8EC7-4D5FB433D166}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B778619D-05C8-4123-BF0E-078D1FBD4824}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B778619D-05C8-4123-BF0E-078D1FBD4824}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B778619D-05C8-4123-BF0E-078D1FBD4824}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B778619D-05C8-4123-BF0E-078D1FBD4824}.Release|Any CPU.Build.0 = Release|Any CPU
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {37CCD945-E2F5-4F87-AA54-0BB0DF471065}
 	EndGlobalSection
 EndGlobal
