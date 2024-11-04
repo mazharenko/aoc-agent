@@ -50,6 +50,7 @@ public class Runner
 					.AddSingleton<StatsStage>()
 					.AddSingleton<CheckExamplesStage>()
 					.AddSingleton<ICheckPartExamplesSubStage, CheckPartExamplesSubStage>()
+					.AddSingleton<SubmitAnswerSubStage>()
 					.AddSingleton<FailedExamplesStage>()
 					.AddSingleton<SubmitAnswersStage>()
 					.AddHttpClient()
