@@ -1,0 +1,18 @@
+﻿[10/1] ✔ Input obtained
+Calculating answer for 10/1
+[10/1] ✔ Answer 'answer' calculated in {}
+[10/1] ⏲ Answer given too recently. Need to wait 2.0s
+Waiting {} more before another attempt
+Waiting {} more before another attempt
+[10/1]
+[1;38;5;11m        .[0m                                                                       
+[1;38;5;11m       ,O,[0m                                                                      
+[1;38;5;11m      ,OOO,[0m                  _           _       _     _                        
+[1;38;5;11m'oooooOOOOOooooo'[0m     _ __  (_)   __ _  | |__   | |_  | |                       
+[1;38;5;11m  `OOOOOOOOOOO`[0m      | '__| | |  / _` | | '_ \  | __| | |                       
+[1;38;5;11m    `OOOOOOO`[0m        | |    | | | (_| | | | | | | |_  |_|                       
+[1;38;5;11m    OOOO'OOOO[0m        |_|    |_|  \__, | |_| |_|  \__| (_)                       
+[1;38;5;11m   OOO'   'OOO[0m                   |___/                                          
+[1;38;5;11m  O'         'O[0m                                                                 
+                                                                                
+                                                                                
