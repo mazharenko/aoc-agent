@@ -7,7 +7,6 @@ namespace AoCAgent.Tests.Stages;
 
 internal class CheckPartExamplesSubStageTests
 {
-	
 	[Test]
 	public async Task Should_Return_NoExamples_When_No_Examples()
 	{
