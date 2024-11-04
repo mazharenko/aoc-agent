@@ -1,4 +1,7 @@
 ﻿<Solution>
+  <Folder Name="/devcontainer/">
+    <File Path=".devcontainer\devcontainer.json" />
+  </Folder>
   <Folder Name="/paket/">
     <File Path="paket.dependencies" />
   </Folder>

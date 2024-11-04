@@ -1,0 +1,14 @@
+{
+	"name": "C# (.NET)",
+	"image": "mcr.microsoft.com/devcontainers/dotnet:1-8.0-bookworm",
+	"features": {
+		"ghcr.io/devcontainers/features/dotnet:2": {},
+		"ghcr.io/devcontainers/features/powershell:1": {}
+	},
+	"postStartCommand": "dotnet tool restore",
+	"customizations": {
+		"vscode": {
+			"extensions": ["ms-dotnettools.csdevkit"]
+		}
+	}
+}

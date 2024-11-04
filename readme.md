@@ -1,6 +1,8 @@
 [![Nuget package](https://img.shields.io/nuget/v/mazharenko.AoCAgent.svg?logo=nuget)](https://www.nuget.org/packages/mazharenko.AoCAgent/) 
 [![License: MIT](https://img.shields.io/badge/License-MIT-lightgrey.svg)](LICENSE)
 
+[![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Containers&message=Open&color=yellow&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/mazharenko/aoc-agent)
+
 # Advent of Code Agent
 
 A set of [C# source generators](https://learn.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/source-generators-overview) to build an *agent* for your [Advent of Code](https://adventofcode.com/) solutions &mdash; an application that downloads inputs and submits answers.
