@@ -10,7 +10,6 @@ on:
 env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
   DOTNET_NOLOGO: true
-  NuGetDirectory: ${{github.workspace}}/nuget
       
 defaults:
   run:
@@ -23,14 +22,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          global-json-file: global.json
-      - name: Install Paket tools
-        run: dotnet tool restore
       - name: Run tests
-        run: dotnet test -c Release
+        uses: devcontainers/ci@v0.3
+        with:
+          push: never
+          runCmd: dotnet test -c Release
     
   publish_nuget:
     runs-on: ubuntu-20.04
@@ -39,19 +35,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          global-json-file: global.json
-      - name: Install Paket tools
-        run: dotnet tool restore
-      - name: Build projects
-        run: dotnet build -c Release -p:Version=${{ github.ref_name }}
-      - name: Pack packages
-        run: dotnet paket pack ${{ env.NuGetDirectory }} --version ${{ github.ref_name }}
       - name: Publish NuGet package
-        run: |
-          foreach($file in (Get-ChildItem "${{ env.NuGetDirectory }}" -Recurse -Include *.nupkg)) {
-              dotnet nuget push $file --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json
-          }
-        
+        uses: devcontainers/ci@v0.3
+        with:
+          push: never
+          runCmd: |
+            pwsh -file "./build/publish.ps1" -version ${{ github.ref_name }} -nugetApiKey "${{ secrets.NUGET_APIKEY }}"
