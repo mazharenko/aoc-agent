@@ -44,8 +44,8 @@ internal class CheckExamplesStageTests
 			year.Parts.Add(part);
 
 		var stats = new Stats();
-		void SetSolved(RunnerPart part) => stats.Solved(DayNum.Create(part.Day), PartNum.Create(part.PartNum));
-		void SetNotSolved(RunnerPart part) => stats.NotSolved(DayNum.Create(part.Day), PartNum.Create(part.PartNum));
+		void SetSolved(RunnerPart part) => stats.Solved(part.Day, part.PartNum);
+		void SetNotSolved(RunnerPart part) => stats.NotSolved(part.Day, part.PartNum);
 
 		var solvedAndImplemented = new RunnerPart(DayNum.Create(1), PartNum._1, A.Fake<IPart>());
 		SetSolved(solvedAndImplemented);

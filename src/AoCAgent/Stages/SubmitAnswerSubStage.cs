@@ -12,7 +12,7 @@ internal class SubmitAnswerSubStage(RunnerContext runnerContext)
 		var (answer, calculationTime) = await new Status(runnerContext.Console)
 			.StartAsync($"Obtaining input for day {part.Day:00}", async ctx =>
 			{
-				var obtained = await runnerContext.AoCClient.LoadInput(DayNum.Create(part.Day));
+				var obtained = await runnerContext.AoCClient.LoadInput(part.Day);
 				var sw = Stopwatch.StartNew();
 				runnerContext.Console.MarkupLine($"[[{part.Day:00}/{part.PartNum}]] :check_mark: Input obtained");
 				ctx.Status($"Calculating answer for {part.Day:00}/{part.PartNum}");
@@ -40,7 +40,7 @@ internal class SubmitAnswerSubStage(RunnerContext runnerContext)
 		{
 			while (true)
 			{
-				var submissionResult = await client.SubmitAnswer(DayNum.Create(part.Day), PartNum.Create(part.PartNum), answer);
+				var submissionResult = await client.SubmitAnswer(part.Day, part.PartNum, answer);
 				switch (submissionResult)
 				{
 					case SubmissionResult.Correct:

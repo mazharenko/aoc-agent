@@ -13,7 +13,7 @@ namespace mazharenko.AoCAgent.Stages;
 				{
 					var notSolvedParts =
 						runnerContext.Year.Parts.OrderByDescending(part => part.Day)
-							.Where(part => !currentStats.IsSolved(DayNum.Create(part.Day), PartNum.Create(part.PartNum)))
+							.Where(part => !currentStats.IsSolved(part.Day, part.PartNum))
 							.ToList();
 					return notSolvedParts;
 				});
