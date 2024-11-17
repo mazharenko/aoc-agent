@@ -1,5 +1,4 @@
 using System.Text.RegularExpressions;
-using FluentAssertions.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
 using Spectre.Console.Testing;
@@ -74,11 +73,15 @@ internal class SubmitAnswerSubStageTests
 		var client = A.Fake<IAoCClient>(o => o.Strict());
 		A.CallTo(() => client.LoadInput(dayNum)).Returns(input);
 		
+		var needToWaitTill = DateTime.Now.AddSeconds(2);
+
 		A.CallTo(() => client.SubmitAnswer(dayNum, partNum, answer))
-			.ReturnsNextFromSequence(
-				Task.FromResult<SubmissionResult>(new SubmissionResult.TooRecently(2.Seconds())),
-				Task.FromResult<SubmissionResult>(new SubmissionResult.Correct())
-			);
+			.ReturnsLazily(_ =>
+			{
+				if (needToWaitTill > DateTime.Now)
+					return Task.FromResult<SubmissionResult>(new SubmissionResult.TooRecently(needToWaitTill - DateTime.Now));
+				return Task.FromResult<SubmissionResult>(new SubmissionResult.Correct());
+			});
 		
 		var services = new ServiceCollection();
 		var console = new TestConsole().EmitAnsiSequences();
@@ -88,13 +91,17 @@ internal class SubmitAnswerSubStageTests
 		var stage = new SubmitAnswerSubStage(new RunnerContext(FakeYear.Default, services.BuildServiceProvider()));
 		var result = await stage.CalculateAndSubmit(new RunnerPart(dayNum, partNum, part));
 		result.Should().Be(true);
-		await Verify(console.Output).AddScrubber(sb =>
-		{
-			var s = sb.ToString()
-				.ReplaceRegex("(?<=calculated in )\\S+", "{}")
-				.ReplaceRegex("(?<=Waiting )\\S+(?= more)", "{}");
-			sb.Clear();
-			sb.Append(s);
-		});
+		A.CallTo(() => client.SubmitAnswer(dayNum, partNum, answer))
+			.MustHaveHappenedTwiceExactly();
+
+		await Verify(console.Output)
+			.AddScrubber(sb =>
+			{
+				var s = sb.ToString()
+					.ReplaceRegex("(?<=calculated in )\\S+", "{}")
+					.ReplaceRegex("(?<=Waiting )\\S+(?= more)", "{}");
+				sb.Clear();
+				sb.Append(s);
+			});
 	}
 }
