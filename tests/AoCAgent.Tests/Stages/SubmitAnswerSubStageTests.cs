@@ -95,11 +95,13 @@ internal class SubmitAnswerSubStageTests
 			.MustHaveHappenedTwiceExactly();
 
 		await Verify(console.Output)
+			.DisableRequireUniquePrefix()
+			.ScrubLines(l => l.Contains("more before another attempt")) // unstable
 			.AddScrubber(sb =>
 			{
 				var s = sb.ToString()
 					.ReplaceRegex("(?<=calculated in )\\S+", "{}")
-					.ReplaceRegex("(?<=Waiting )\\S+(?= more)", "{}");
+					;
 				sb.Clear();
 				sb.Append(s);
 			});

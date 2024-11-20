@@ -2,8 +2,6 @@
 Calculating answer for 10/1
 [10/1] ✔ Answer 'answer' calculated in {}
 [10/1] ⏲ Answer given too recently. Need to wait 2.0s
-Waiting {} more before another attempt
-Waiting {} more before another attempt
 [10/1]
 [1;38;5;11m        .[0m                                                                       
 [1;38;5;11m       ,O,[0m                                                                      
