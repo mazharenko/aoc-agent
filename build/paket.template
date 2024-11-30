@@ -10,7 +10,10 @@ licenseUrl https://licenses.nuget.org/MIT
 dependencies
   framework: net6.0
   LiteDB >= 5.0.17
-  Spectre.Console >= 0.46.0
+  Spectre.Console ~> 0.49
+  Microsoft.Extensions.DependencyInjection >= 8.0.0
+  Microsoft.Extensions.Http >= 8.0.0
+  JetBrains.Annotations >= 2022.1.0
 files
   ../src/AoCAgent/bin/Release/net6.0/mazharenko.AoCAgent.dll ==> lib/net6.0
   ../src/AoCAgent.Generator.Attributes/bin/Release/netstandard2.0/mazharenko.AoCAgent.Generator.Attributes.dll ==> lib/net6.0
