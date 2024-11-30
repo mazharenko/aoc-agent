@@ -36,7 +36,6 @@ namespace mazharenko.AoCAgent.Stages;
 						notSolvedParts.Select(part =>
 						{
 							var result = checkPartExamplesSubStage.CheckExamples(part);
-							Thread.Sleep(500);
 							return (part, result);
 						}).ToList();
 
