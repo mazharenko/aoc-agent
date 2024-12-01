@@ -19,6 +19,13 @@ internal partial class DaysGenerator
 		var dayWithBase =
 			ClassDeclaration(day.Syntax.Identifier)
 				.AddAttributeLists(CodeGeneratedAttribute.AsSyntax)
+				.AddAttributeLists(
+					AttributeList(
+						SingletonSeparatedList(
+							Attribute(ParseName("JetBrains.Annotations.UsedImplicitly"))
+						)
+					)
+				)
 				.AddModifiers(
 					Token(SyntaxKind.PartialKeyword)
 				).WithMembers(
