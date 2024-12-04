@@ -106,7 +106,7 @@ internal class AoCCachingClient(int year, IAoCClient underlyingClient) : IAoCCli
 			new DbStats
 			{
 				Solved = actualResults.GetSolved().Select(
-					x => new DbPartId(x.day.Num, x.day.Num)
+					x => new DbPartId(x.day.Num, x.part.Num)
 				).ToList(),
 				Timestamp = DateTime.Now
 			}
