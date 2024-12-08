@@ -30,8 +30,8 @@ internal partial class DaysGenerator
 					Token(SyntaxKind.PartialKeyword)
 				).WithMembers(
 					List(
-						GeneratePartDeclarations("Part1", day.Part1)
-							.Concat(GeneratePartDeclarations("Part2", day.Part2))
+						GeneratePartDeclarations("Part1", day.Part1, day.Number)
+							.Concat(GeneratePartDeclarations("Part2", day.Part2, day.Number))
 							.Cast<MemberDeclarationSyntax>()
 					)
 				);
@@ -196,7 +196,7 @@ internal partial class DaysGenerator
 
 	}
 	
-	private static IEnumerable<TypeDeclarationSyntax> GeneratePartDeclarations(string identifier, PartSource part)
+	private static IEnumerable<TypeDeclarationSyntax> GeneratePartDeclarations(string identifier, PartSource part, int dayNumber)
 	{
 		yield return InterfaceDeclaration($"I{identifier}")
 			.AddModifiers(Token(SyntaxKind.PrivateKeyword))
@@ -205,6 +205,9 @@ internal partial class DaysGenerator
 				List(GenerateIPartMembers(part))
 			);
 		yield return ClassDeclaration($"{identifier}Base")
+			.AddBaseListTypes(
+				SimpleBaseType(IdentifierName($"Day{dayNumber:00}"))
+			)
 			.AddModifiers(Token(SyntaxKind.AbstractKeyword))
 			.AddModifiers(part.PartClass.Modifiers.Where(m =>
 				m.Kind() is SyntaxKind.PublicKeyword
