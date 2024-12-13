@@ -56,9 +56,9 @@ internal class CheckPartExamplesSubStageTests
 
 		var intExpectation = 456988;
 		var intResult = intExpectation;
-		examples.Add(new ExampleAdapter<int>(
-			FakeExample.Create(intExpectation, intResult)
-		).Named("exampleValueTypeViaAdapter"));
+		examples.Add(
+			FakeExample.Create(intExpectation, intResult).Named("exampleValueTypeViaAdapter")
+		);
 
 		var referenceTypeExpectation = A.Fake<IType>();
 		var referenceTypeResult = A.Fake<IType>();

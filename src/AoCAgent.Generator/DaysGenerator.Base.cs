@@ -30,9 +30,9 @@ internal partial class DaysGenerator
 					Token(SyntaxKind.PartialKeyword)
 				).WithMembers(
 					List(
-						GeneratePartDeclarations("Part1", day.Part1, day.Number)
-							.Concat(GeneratePartDeclarations("Part2", day.Part2, day.Number))
-							.Cast<MemberDeclarationSyntax>()
+							GenerateDayExampleTypes(day)
+								.Concat(GeneratePartDeclarations("Part1", day.Part1, day))
+								.Concat(GeneratePartDeclarations("Part2", day.Part2, day))
 					)
 				);
 		var newRoot =
@@ -57,8 +57,8 @@ internal partial class DaysGenerator
 			Encoding.UTF8
 		));
 	}
-
-	private static IEnumerable<MemberDeclarationSyntax> GeneratePartMembers(PartSource part)
+	
+	private static IEnumerable<MemberDeclarationSyntax> GeneratePartMembers(PartSource part, DaySource day)
 	{
 		yield return ParseMemberDeclaration(
 			$$"""
@@ -84,7 +84,12 @@ internal partial class DaysGenerator
 				.SelectMany(exampleField => exampleField.Declaration.Variables)
 				.ToList();
 
-		if (examples.Count == 0)
+		var dayExamples = day.Syntax.Members.OfType<FieldDeclarationSyntax>()
+			.Where(field => field.Declaration.Type.ToString() == "Example")
+			.SelectMany(exampleField => exampleField.Declaration.Variables)
+			.ToList();
+
+		if (examples.Count == 0 && dayExamples.Count == 0)
 			yield return MethodDeclaration(
 					ParseTypeName("System.Collections.Generic.IEnumerable<NamedExample>"),
 					Identifier("GetExamples")
@@ -93,35 +98,62 @@ internal partial class DaysGenerator
 					YieldStatement(SyntaxKind.YieldBreakStatement)
 				));
 		else
+		{
+			var dayExampleStatements = dayExamples.Select(exampleVariable =>
+			{
+				var castedReference =
+						MemberAccessExpression(
+							SyntaxKind.SimpleMemberAccessExpression,
+					ParenthesizedExpression(
+							CastExpression(
+								IdentifierName(day.Syntax.Identifier),
+								ThisExpression())),
+							IdentifierName("example")
+						);
+				return IfStatement(
+						MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, castedReference, IdentifierName("Initialized")),
+					YieldStatement(SyntaxKind.YieldReturnStatement,
+						ObjectCreationExpression(ParseTypeName("NamedExample"))
+							.WithArgumentList(ArgumentList(
+								SeparatedList(new ExpressionSyntax[]
+								{
+									LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(exampleVariable.Identifier.ValueText)),
+									CastExpression(
+										ParseTypeName("IExample"),
+										castedReference
+									)
+								}.Select(Argument))
+							))
+					)
+				);
+			});
+			var partExampleStatements =
+				examples.Select(exampleVariable =>
+					YieldStatement(SyntaxKind.YieldReturnStatement,
+						ObjectCreationExpression(ParseTypeName("NamedExample"))
+							.WithArgumentList(ArgumentList(
+								SeparatedList(new ExpressionSyntax[]
+								{
+									LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(exampleVariable.Identifier.ValueText)),
+									CastExpression(
+										ParseTypeName("IExample"),
+										IdentifierName(exampleVariable.Identifier)
+									)
+								}.Select(Argument))
+							))
+					)).Cast<StatementSyntax>().ToArray();
+			
 			yield return MethodDeclaration(
 					ParseTypeName("System.Collections.Generic.IEnumerable<NamedExample>"),
 					Identifier("GetExamples")
 				).AddModifiers(Token(SyntaxKind.PublicKeyword))
 				.WithBody(Block(
 					List(
-						examples.Select(exampleVariable =>
-							YieldStatement(SyntaxKind.YieldReturnStatement,
-								ObjectCreationExpression(ParseTypeName("NamedExample"))
-									.WithArgumentList(ArgumentList(
-										SeparatedList(new ExpressionSyntax[]
-										{
-											LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(exampleVariable.Identifier.ValueText)),
-											part.ResType.IsValueType
-												? ObjectCreationExpression(GenericName(Identifier("ExampleAdapter"))
-														.AddTypeArgumentListArguments(IdentifierName(part.ResType.ToDisplayString())))
-													.AddArgumentListArguments(Argument(IdentifierName(exampleVariable.Identifier)))
-												: CastExpression(
-													// explicit cast to workaround NRT warnings
-													ParseTypeName("IExample<object>"),
-													IdentifierName(exampleVariable.Identifier)
-												)
-										}.Select(Argument))
-									))
-							)
-						)
+						dayExampleStatements.Concat(partExampleStatements).ToList()
 					)
 				));
-		
+		}
+
 		yield return ParseMemberDeclaration(
 			$$"""
 			public string SolveString(string input)
@@ -132,25 +164,61 @@ internal partial class DaysGenerator
 			"""
 		)!;
 
-		var exampleInputType = part.ManualInput ? part.InputType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) : "string";
+		yield return GeneratePartExampleType(part);
+		
 		yield return ParseMemberDeclaration(
 			$$"""
-			private record Example({{exampleInputType}} Input, {{part.ResType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} Expectation) : IExample<{{part.ResType.ToDisplayString()}}>
+			private void Expect(Day{{day.Number:00}}.Example example, {{part.ResType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} expectation)
 			{
+				example.Init(new Example(example.Input, expectation));
+			}
+			""")!;
+	}
+	
+	private static MemberDeclarationSyntax GeneratePartExampleType(PartSource part)
+	{
+		var exampleInputType = part.ManualInput ? part.InputType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) : "string";
+		return ParseMemberDeclaration(
+			$$"""
+			private new record Example : IExample
+			{
+				public {{exampleInputType}} Input { get;}
+				public object Expectation { get; }
+				private {{part.ResType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} expectationTyped;
+				public Example({{exampleInputType}} input, {{part.ResType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} expectation)
+				{
+					Input = input;
+					Expectation = expectation;
+					expectationTyped = expectation;
+				}
 				private string expectationFormatted = null!;
 				private static {{part.PartType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} part = new {{part.PartType.ToDisplayString()}}();
-				public {{part.ResType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} Run()
+				public object Run()
 				{
 					var parsedInput = {{(part.ManualInput ? "Input" : "part.Parse(Input)")}};
 					return part.Solve(parsedInput);
 				}
-				public {{part.ResType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} RunFormat(out string formatted)
+				public object RunFormat(out string formatted)
 				{
-					var res = Run();
+					var parsedInput = {{(part.ManualInput ? "Input" : "part.Parse(Input)")}};
+					var res = part.Solve(parsedInput);
 					formatted = part.Format(res);
 					return res;
 				}
-				public string ExpectationFormatted => expectationFormatted ??= part.Format(Expectation);
+				public string ExpectationFormatted => expectationFormatted ??= part.Format(expectationTyped);
+			}
+			"""
+		)!;
+	}
+
+	private static IEnumerable<MemberDeclarationSyntax> GenerateDayExampleTypes(DaySource day)
+	{
+		var part = day.Part1;
+		var exampleInputType = part.ManualInput ? part.InputType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat) : "string";
+		yield return ParseMemberDeclaration(
+			$$"""
+			private record Example({{exampleInputType}} Input) : DayExample<{{exampleInputType}}>(Input), IExample
+			{
 			}
 			"""
 		)!;
@@ -160,8 +228,14 @@ internal partial class DaysGenerator
 	{
 		yield return ParseMemberDeclaration(
 			$$"""
-			 {{part.ResType.ToDisplayString()}} Solve({{part.InputType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} input);
-			 """
+			  {{part.ResType.ToDisplayString()}} Solve({{part.InputType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} input);
+			  """
+		)!;
+
+		yield return ParseMemberDeclaration(
+			$$"""
+			  string Format({{part.ResType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} res);
+			  """
 		)!;
 
 		if (!part.ManualInput)
@@ -173,8 +247,8 @@ internal partial class DaysGenerator
 		else
 			yield return ParseMemberDeclaration(
 				$$"""
-				{{part.InputType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} ManualInput();
-				"""
+				  {{part.InputType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} ManualInput();
+				  """
 			)!;
 	}
 
@@ -185,7 +259,7 @@ internal partial class DaysGenerator
 			  public virtual string Format({{part.ResType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)}} res) => res!.ToString()!;
 			  """
 		)!;
-		
+
 		if (part is { ManualInput: false, IsStringInput: true })
 		{
 			yield return ParseMemberDeclaration(
@@ -193,10 +267,9 @@ internal partial class DaysGenerator
 				public virtual {part.InputType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)} Parse(string input) => input.Trim();
 				""")!;
 		}
-
 	}
 	
-	private static IEnumerable<TypeDeclarationSyntax> GeneratePartDeclarations(string identifier, PartSource part, int dayNumber)
+	private static IEnumerable<TypeDeclarationSyntax> GeneratePartDeclarations(string identifier, PartSource part, DaySource day)
 	{
 		yield return InterfaceDeclaration($"I{identifier}")
 			.AddModifiers(Token(SyntaxKind.PrivateKeyword))
@@ -206,7 +279,7 @@ internal partial class DaysGenerator
 			);
 		yield return ClassDeclaration($"{identifier}Base")
 			.AddBaseListTypes(
-				SimpleBaseType(IdentifierName($"Day{dayNumber:00}"))
+				SimpleBaseType(IdentifierName($"Day{day.Number:00}"))
 			)
 			.AddModifiers(Token(SyntaxKind.AbstractKeyword))
 			.AddModifiers(part.PartClass.Modifiers.Where(m =>
@@ -225,7 +298,7 @@ internal partial class DaysGenerator
 				SimpleBaseType(IdentifierName($"I{identifier}"))
 			).WithMembers(
 				List(
-					GeneratePartMembers(part)
+					GeneratePartMembers(part, day)
 				)
 			);
 	}

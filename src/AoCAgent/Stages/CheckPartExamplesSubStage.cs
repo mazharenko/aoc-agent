@@ -12,7 +12,7 @@ internal class CheckPartExamplesSubStage(RunnerContext runnerContext) : ICheckPa
 {
 	public CheckExamplesResult CheckExamples(RunnerPart part)
 	{
-		var examples = part.Part.GetExamples().ToList();
+		var examples = part.Part.GetExamples().Where(e => e.Example is not null).ToList();
 		if (examples.Count == 0 && part.Part.Settings.BypassNoExamples)
 		{
 			runnerContext.Console.MarkupLine($"Day {part.Day:00} Part {part.PartNum} - [green bold]no examples[/]");

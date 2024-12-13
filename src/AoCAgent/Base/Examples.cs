@@ -5,28 +5,45 @@ namespace mazharenko.AoCAgent.Base;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 [UsedImplicitly]
-public record NamedExample(string Name, IExample<object> Example);
+public record NamedExample(string Name, IExample Example);
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 [UsedImplicitly]
-public interface IExample<out TRes>
+public interface IExample
 {
-	TRes Expectation { get; }
+	object Expectation { get; }
 	string ExpectationFormatted { get; }
-	TRes Run();
-	TRes RunFormat(out string formatted);
+	object Run();
+	object RunFormat(out string formatted);
 }
 
-// sadly, covariance for value types is a nonsense 
 [EditorBrowsable(EditorBrowsableState.Never)]
 [UsedImplicitly]
-public class ExampleAdapter<TRes>(IExample<TRes> example) : IExample<object>
-	where TRes : struct
+public record DayExample<TInput>(TInput Input) : IExample
 {
-	public object Expectation => example.Expectation;
-	public string ExpectationFormatted => example.ExpectationFormatted;
-	public object Run() => example.Run();
-	public object RunFormat(out string formatted) => example.RunFormat(out formatted);
+	private IExample PartExample
+	{
+		get
+		{
+			if (field is null)
+				throw new InvalidOperationException("Example is not initialized. Consider calling Expect");
+			return field;
+		}
+		set;
+	} = null!;
+
+	public void Init(IExample partExampleToDelegate)
+	{
+		PartExample = partExampleToDelegate;
+		Initialized = true;
+	}
+
+	public bool Initialized { get; private set; }
+
+	public object Expectation => PartExample.Expectation; 
+	public string ExpectationFormatted => PartExample.ExpectationFormatted;
+	public object Run() => PartExample.Run();
+	public object RunFormat(out string formatted) => PartExample.RunFormat(out formatted);
 }
 
 

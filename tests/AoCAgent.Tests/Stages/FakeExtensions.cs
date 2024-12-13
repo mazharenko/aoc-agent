@@ -5,7 +5,7 @@ internal static class FakeExtensions
 	public static RunnerPart RunnerPart(this IPart part, int dayNum, int partNum) 
 		=> new(DayNum.Create(dayNum), PartNum.Create(partNum), part);
 
-	public static NamedExample Named(this IExample<object> example, string name)
+	public static NamedExample Named(this IExample example, string name)
 	{
 		return new NamedExample(name, example);
 	}
@@ -34,12 +34,12 @@ internal static class FakePart
 
 internal static class FakeExample
 {
-	public static IExample<T> Create<T>(T expectation, T result) => Create(expectation, () => result);
-	public static IExample<T> Create<T>(T expectation, T result, string resultFormatted) => Create(expectation, () => result, () => resultFormatted);
-	public static IExample<T> Create<T>(T expectation, Func<T> resultFunc) => Create(expectation, resultFunc, () => resultFunc()?.ToString());
-	public static IExample<T> Create<T>(T expectation, Func<T> resultFunc, Func<string?> resultFormattedFunc)
+	public static IExample Create(object expectation, object result) => Create(expectation, () => result);
+	public static IExample Create(object expectation, object result, string resultFormatted) => Create(expectation, () => result, () => resultFormatted);
+	public static IExample Create(object expectation, Func<object> resultFunc) => Create(expectation, resultFunc, () => resultFunc()?.ToString());
+	public static IExample Create(object expectation, Func<object> resultFunc, Func<string?> resultFormattedFunc)
 	{
-		return A.Fake<IExample<T>>(o =>
+		return A.Fake<IExample>(o =>
 			o.ConfigureFake(ex =>
 			{
 				string formatted;

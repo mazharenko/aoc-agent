@@ -36,12 +36,12 @@ public class FailedExamplesStageTests
 	[Test]
 	public async Task Should_Print_All_Failed_Examples()
 	{
-		var failedExample = A.Fake<IExample<object>>();
+		var failedExample = A.Fake<IExample>();
 		A.CallTo(() => failedExample.ExpectationFormatted).Returns("failed expected");
 		var failedExampleResult = 
 			(failedExample.Named("failedExample"), "failed actual", (Exception?)null);
 
-		var failedWithExceptionExample = A.Fake<IExample<string>>();
+		var failedWithExceptionExample = A.Fake<IExample>();
 		A.CallTo(() => failedWithExceptionExample.ExpectationFormatted).Returns("failed with ex expected");
 		var failedWithExceptionExampleResult =
 			(failedWithExceptionExample.Named("failedWithExceptionExample"), (string?)null, new Exception("exception message"));

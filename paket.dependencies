@@ -15,7 +15,6 @@ nuget JetBrains.Annotations >= 2022.1.0
 group Tests
   source https://api.nuget.org/v3/index.json
   storage: none
-  framework: net8.0
   nuget NUnit ~> 4.2
   nuget NUnit3TestAdapter ~> 4.6.0
   nuget Microsoft.NET.Test.Sdk ~> 17.11.0

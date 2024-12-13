@@ -241,7 +241,7 @@ internal class TestsGenerator : IIncrementalGenerator
 			  [ExampleTestsSource]
 			  partial class {{testFixtures[0].Identifier.ValueText}}
 			  {
-			  	public object TestPart(IExample<object> example)
+			  	public object TestPart(IExample example)
 			  	{
 			  		var result = example.Run();
 			  		return result;
