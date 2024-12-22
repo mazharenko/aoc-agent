@@ -108,7 +108,7 @@ internal partial class DaysGenerator
 							CastExpression(
 								IdentifierName(day.Syntax.Identifier),
 								ThisExpression())),
-							IdentifierName("example")
+							IdentifierName(exampleVariable.Identifier)
 						);
 				return IfStatement(
 						MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, castedReference, IdentifierName("Initialized")),
