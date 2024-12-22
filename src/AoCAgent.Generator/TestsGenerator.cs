@@ -98,7 +98,7 @@ internal class TestsGenerator : IIncrementalGenerator
 			  	public string TestPart(IPart part, string inputPath)
 			  	{
 			  		if (!File.Exists(inputPath))
-			  			throw new InconclusiveException($"{inputPath} file was not found");
+			  			Assert.Fail($"{inputPath} file was not found");
 			  
 			  		var input = File.ReadAllText(inputPath);
 			  		var result = part.SolveString(input);
