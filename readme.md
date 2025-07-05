@@ -87,6 +87,10 @@ A set of [C# source generators](https://learn.microsoft.com/en-us/dotnet/csharp/
 
 7. Run it again. It's supposed to be launched with `dotnet watch`. In this case, if any issues with the implementation are detected, it will automatically restart after code changes.
 
+
+    https://github.com/user-attachments/assets/80bea89a-db1e-4a51-8c3c-3593f86f1a70
+
+
     https://github.com/mazharenko/aoc-agent/assets/5635071/d18e2b33-a1c8-4d25-9ac0-89ed28fef2e2
 
 
