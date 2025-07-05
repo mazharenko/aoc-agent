@@ -17,4 +17,4 @@ A set of [C# source generators](https://learn.microsoft.com/en-us/dotnet/csharp/
 1. Does not parse the input for you.
 2. Does not include specialized algorithms (e.g., BFS, LCM, OCR) that are typical for AoC.
 
-<video href="https://github.com/mazharenko/aoc-agent/assets/5635071/d18e2b33-a1c8-4d25-9ac0-89ed28fef2e2"></video>
+https://github.com/mazharenko/aoc-agent/assets/5635071/d18e2b33-a1c8-4d25-9ac0-89ed28fef2e2
