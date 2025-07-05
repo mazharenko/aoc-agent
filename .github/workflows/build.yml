@@ -26,7 +26,7 @@ jobs:
         uses: devcontainers/ci@v0.3
         with:
           push: never
-          runCmd: dotnet test -c Release
+          runCmd: dotnet test ./tests/AoCAgent.Tests/AoCAgent.Tests.csproj -c Release
     
   publish_nuget:
     runs-on: ubuntu-24.04
