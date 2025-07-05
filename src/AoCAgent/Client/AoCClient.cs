@@ -48,7 +48,6 @@ internal class AoCClient(int year, string sessionToken, IHttpClientFactory httpC
 
 	public async Task<SubmissionResult> SubmitAnswer(DayNum day, PartNum part, string answer)
 	{
-		// Congratulations! You've finished every puzzle in Advent of Code 2023
 		var form = new FormUrlEncodedContent(
 			new Dictionary<string, string>
 			{
