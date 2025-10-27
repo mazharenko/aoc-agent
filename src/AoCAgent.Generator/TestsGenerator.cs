@@ -197,7 +197,7 @@ internal class TestsGenerator : IIncrementalGenerator
 					{
 						var dayNum = dayCases.Key;
 						
-						var fixtureName = includeYear ? $"Year{year.Year}_Day{dayNum:00}" : $"Day{dayNum:00}_InputTests";
+						var fixtureName = includeYear ? $"Year{year.Year}_Day{dayNum:00}_InputTests" : $"Day{dayNum:00}_InputTests";
 						var dayFixture = new TestFixture(typeInfo)
 						{
 							Name = fixtureName,
@@ -285,7 +285,7 @@ internal class TestsGenerator : IIncrementalGenerator
 					var method = typeInfo.GetMethods(BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance).Single();
 					foreach (var day in year.Parts.ToLookup(x => x.Day))
 					{
-						var fixtureName = includeYear ? $"Year{year.Year}_Day{day.Key:00}" : $"Day{day.Key:00}_ExampleTests";
+						var fixtureName = includeYear ? $"Year{year.Year}_Day{day.Key:00}_ExampleTests" : $"Day{day.Key:00}_ExampleTests";
 						var dayFixture = new TestFixture(typeInfo)
 						{
 							Name = fixtureName,
