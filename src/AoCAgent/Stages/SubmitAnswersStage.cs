@@ -35,23 +35,18 @@ internal class SubmitAnswersStage(RunnerContext runnerContext, SubmitAnswerSubSt
 		}
 
 		var newStats = await runnerContext.AoCClient.GetDayResults();
-		if (newStats.Stars == 49)
+		if (newStats.Stars == runnerContext.Year.MaxStars - 1)
 		{
-			runnerContext.Console.MarkupLine("[green bold]49 stars have been acquired. Claiming the last one[/]");
-			await SubmitStar50(runnerContext.AoCClient);
+			runnerContext.Console.MarkupLine($"[green bold]{newStats.Stars} stars have been acquired. Claiming the last one[/]");
+			await new Status(runnerContext.Console).StartAsync($"Claiming star {runnerContext.Year.MaxStars}", async ctx =>
+			{
+				await runnerContext.AoCClient.SubmitAnswer(DayNum.Create(runnerContext.Year.MaxDays), PartNum._2, "0");
+				runnerContext.Console.MarkupLine($"[[{runnerContext.Year.MaxDays}/2]]");
+				runnerContext.Console.Write(Renderables.Correct($"{runnerContext.Year.MaxStars}!"));
+			});
 			atLeastOneCorrectAnswer = true;
 		}
 
 		return new SubmitAnswersResult(atLeastOneCorrectAnswer);
-	}
-
-	private async Task SubmitStar50(IAoCClient client)
-	{
-		await new Status(runnerContext.Console).StartAsync("Claiming star 50", async ctx =>
-		{
-			await client.AcquireStar50();
-			runnerContext.Console.MarkupLine("[[25/2]]");
-			runnerContext.Console.Write(Renderables.Correct("50!"));
-		});
 	}
 }

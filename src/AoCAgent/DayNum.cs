@@ -21,12 +21,7 @@ public record DayNum : IComparable<DayNum>
 
 	public static DayNum Create(int num)
 	{
-		return TryCreate(num) ?? throw new ArgumentOutOfRangeException();
-	}
-
-	public static DayNum? TryCreate(int num)
-	{
-		return num is >= 1 and <= 25 ? new DayNum(num) : null;
+		return new DayNum(num);
 	}
 
 	public static implicit operator int(DayNum day)

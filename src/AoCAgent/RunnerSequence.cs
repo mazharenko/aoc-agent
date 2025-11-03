@@ -13,7 +13,7 @@ internal class RunnerSequence(
 	{
 		var currentStats = await runnerContext.GetCurrentStats();
 		statsStage.RenderStats(currentStats);
-		if (currentStats.AllComplete())
+		if (currentStats.Stars == runnerContext.Year.MaxStars)
 			return;
 		var exampleResults = checkExamplesStage.CheckExamples(currentStats);
 		var submitAnswersResult = await submitAnswersStage.CalculateAndSubmit(exampleResults);
