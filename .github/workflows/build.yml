@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Run tests
         uses: devcontainers/ci@v0.3
         with:
@@ -34,7 +34,7 @@ jobs:
     needs: [ test ]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Publish NuGet package
         uses: devcontainers/ci@v0.3
         with:
