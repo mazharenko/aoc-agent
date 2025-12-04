@@ -6,10 +6,10 @@ storage: none
 
 nuget Microsoft.Extensions.DependencyInjection >= 8.0.0
 nuget Microsoft.Extensions.Http >= 8.0.0
-nuget ThisAssembly.AssemblyInfo >= 1.4.1 copy_local: false
+nuget ThisAssembly.AssemblyInfo >= 2.1.2 copy_local: false
 nuget Microsoft.CodeAnalysis.CSharp.Workspaces >= 4.6.0 copy_local: false
-nuget LiteDB >= 5.0.17
-nuget Spectre.Console ~> 0.49
+nuget LiteDB >= 5.0.21
+nuget Spectre.Console ~> 0.54
 nuget JetBrains.Annotations >= 2022.1.0
 
 group Tests
