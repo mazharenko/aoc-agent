@@ -60,7 +60,7 @@ internal class Tree : IRenderable
 	
 	
 	
-	public Tree(int year, int starCount)
+	public Tree(int year, int completeness)
 	{
 		var random = new Random(year);
 
@@ -77,7 +77,7 @@ internal class Tree : IRenderable
 		}
 		Shuffle(candidateIndexes);
 		
-		var indexesToPlaceToy = candidateIndexes.Take(starCount).ToList();
+		var indexesToPlaceToy = candidateIndexes.Take(completeness / 2).ToList();
 		var treeArray = TreeEmpty.ToCharArray();
 		var toys = new [] {'@', 'o', 'O', '*'};
 		foreach (var i in indexesToPlaceToy) 
@@ -90,7 +90,7 @@ internal class Tree : IRenderable
 			.Replace("*", "[yellow1 bold]*[/]")
 			;
 		
-		var top = starCount == 50 ? TreeTopLit : TreeTop;
+		var top = completeness == 100 ? TreeTopLit : TreeTop;
 		treePanel = new Panel(
 			new Markup(top + treeString,
 				new Style(Color.Green))

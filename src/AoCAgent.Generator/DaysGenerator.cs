@@ -220,9 +220,11 @@ internal partial class DaysGenerator : IIncrementalGenerator
 						return days.GroupBy(y => y.Year!.Value, y => y,
 							(yearNum, yearDays) =>
 							{
+								var maxStars = yearNum switch { <= 2024 => 50, _ => 24 };
+								var maxDays = yearNum switch { <= 2024 => 25, _ => 12 };
 								var yearClass = explicitYear?.Number == yearNum
-									? new YearClass(yearNum, $"Year{yearNum}", explicitYear.Value.Syntax.GetContainingNamespace()?.ToString())
-									: new YearClass(yearNum, $"Year{yearNum}", "mazharenko.AoCAgent.GeneratedAgent");
+									? new YearClass(yearNum, maxStars, maxDays, $"Year{yearNum}", explicitYear.Value.Syntax.GetContainingNamespace()?.ToString())
+									: new YearClass(yearNum, maxStars, maxDays, $"Year{yearNum}", "mazharenko.AoCAgent.GeneratedAgent");
 								return new YearSource(yearClass, yearDays.OrderBy(d => d.Number).ToImmutableArray());
 							}
 						);

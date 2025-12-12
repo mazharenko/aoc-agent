@@ -2,6 +2,8 @@ namespace mazharenko.AoCAgent.Generator.Sources;
 
 internal readonly record struct YearClass(
 	int Num,
+	int MaxStars,
+	int MaxDays,
 	string Name,
 	string? Namespace
 )

@@ -44,8 +44,6 @@ internal class Stats(ISet<(DayNum, PartNum)> solvedParts)
 	public IEnumerable<(DayNum day, PartNum part)> GetSolved() => solvedParts;
 
 	public int Stars => solvedParts.Count;
-
-	public bool AllComplete() => Stars == 50;
 }
 
 internal interface IAoCClient 
@@ -53,5 +51,5 @@ internal interface IAoCClient
 	Task<string> LoadInput(DayNum day);
 	Task<SubmissionResult> SubmitAnswer(DayNum day, PartNum part, string answer);
 	Task<Stats> GetDayResults();
-	Task AcquireStar50();
+	Task AcquireStarLast(DayNum day);
 }

@@ -1,5 +1,6 @@
 <Project>
   <PropertyGroup>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>$(NoWart);NU1510</NoWarn>
   </PropertyGroup>
 </Project>

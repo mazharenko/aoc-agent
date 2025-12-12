@@ -7,6 +7,8 @@ namespace mazharenko.AoCAgent.Base;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class YearBase
 {
+	public abstract int MaxStars { get; }
+	public abstract int MaxDays { get; }
 	[UsedImplicitly]
 	public abstract int Year { get; }
 	[UsedImplicitly]

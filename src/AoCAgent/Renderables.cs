@@ -7,10 +7,10 @@ namespace mazharenko.AoCAgent;
 
 internal static class Renderables
 {
-	public static IRenderable Splash(int year, int stars = 0)
+	public static IRenderable Splash(int year, int completeness = 0)
 	{
 		var grid = new Grid().AddColumn();
-		var tree = new Tree(year, stars);
+		var tree = new Tree(year, completeness);
 		grid.AddRow(
 			new Grid().AddColumn().AddColumn()
 				.AddRow(tree, new Panel(
@@ -19,7 +19,7 @@ internal static class Renderables
 			).MiddleAligned()
 		).Height(tree.Height).NoBorder()));
 			
-		if (stars == 50)
+		if (completeness == 100)
 			grid.AddRow(new FigletText("completed"));
 		return grid;
 	}

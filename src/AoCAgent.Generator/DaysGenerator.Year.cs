@@ -29,6 +29,16 @@ internal partial class DaysGenerator
 						.WithExpressionBody(ArrowExpressionClause(LiteralExpression(SyntaxKind.NumericLiteralExpression,
 							Literal(yearSource.YearClass.Num))))
 						.WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+						.AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.OverrideKeyword)),
+					PropertyDeclaration(PredefinedType(Token(SyntaxKind.IntKeyword)), Identifier("MaxStars"))
+						.WithExpressionBody(ArrowExpressionClause(LiteralExpression(SyntaxKind.NumericLiteralExpression,
+							Literal(yearSource.YearClass.MaxStars))))
+						.WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+						.AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.OverrideKeyword)),
+					PropertyDeclaration(PredefinedType(Token(SyntaxKind.IntKeyword)), Identifier("MaxDays"))
+						.WithExpressionBody(ArrowExpressionClause(LiteralExpression(SyntaxKind.NumericLiteralExpression,
+							Literal(yearSource.YearClass.MaxDays))))
+						.WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
 						.AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.OverrideKeyword))
 				);
 

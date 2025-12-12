@@ -28,18 +28,6 @@ internal class AoCCachingClient(int year, IAoCClient underlyingClient) : IAoCCli
 		return db;
 	}
 
-	public async Task AcquireStar50()
-	{
-		using var db = ConnectToDb();
-		await underlyingClient.AcquireStar50();
-		var stats = db.GetCollection<DbStats>().Query().FirstOrDefault();
-		stats.Solved =
-			stats.Solved.Append(new DbPartId(DayNum.Create(25), PartNum._2))
-				.Distinct()
-				.ToList();
-		db.GetCollection<DbStats>().Update(stats);
-	}
-
 	public async Task<SubmissionResult> SubmitAnswer(DayNum day, PartNum part, string answer)
 	{
 		using var db = ConnectToDb();
@@ -90,6 +78,18 @@ internal class AoCCachingClient(int year, IAoCClient underlyingClient) : IAoCCli
 		return result;
 	}
 
+	public async Task AcquireStarLast(DayNum day)
+	{
+		using var db = ConnectToDb();
+		await underlyingClient.AcquireStarLast(day);
+		var stats = db.GetCollection<DbStats>().Query().FirstOrDefault();
+		stats.Solved =
+			stats.Solved.Append(new DbPartId(day, PartNum._2))
+				.Distinct()
+				.ToList();
+		db.GetCollection<DbStats>().Update(stats);
+	}
+	
 	public async Task<Stats> GetDayResults()
 	{
 		using var db = ConnectToDb();
