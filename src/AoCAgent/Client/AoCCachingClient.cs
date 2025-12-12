@@ -78,6 +78,18 @@ internal class AoCCachingClient(int year, IAoCClient underlyingClient) : IAoCCli
 		return result;
 	}
 
+	public async Task AcquireStarLast(DayNum day)
+	{
+		using var db = ConnectToDb();
+		await underlyingClient.AcquireStarLast(day);
+		var stats = db.GetCollection<DbStats>().Query().FirstOrDefault();
+		stats.Solved =
+			stats.Solved.Append(new DbPartId(day, PartNum._2))
+				.Distinct()
+				.ToList();
+		db.GetCollection<DbStats>().Update(stats);
+	}
+	
 	public async Task<Stats> GetDayResults()
 	{
 		using var db = ConnectToDb();

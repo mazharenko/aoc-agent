@@ -40,7 +40,7 @@ internal class SubmitAnswersStage(RunnerContext runnerContext, SubmitAnswerSubSt
 			runnerContext.Console.MarkupLine($"[green bold]{newStats.Stars} stars have been acquired. Claiming the last one[/]");
 			await new Status(runnerContext.Console).StartAsync($"Claiming star {runnerContext.Year.MaxStars}", async ctx =>
 			{
-				await runnerContext.AoCClient.SubmitAnswer(DayNum.Create(runnerContext.Year.MaxDays), PartNum._2, "0");
+				await runnerContext.AoCClient.AcquireStarLast(DayNum.Create(runnerContext.Year.MaxDays));
 				runnerContext.Console.MarkupLine($"[[{runnerContext.Year.MaxDays}/2]]");
 				runnerContext.Console.Write(Renderables.Correct($"{runnerContext.Year.MaxStars}!"));
 			});

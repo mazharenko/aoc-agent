@@ -51,4 +51,5 @@ internal interface IAoCClient
 	Task<string> LoadInput(DayNum day);
 	Task<SubmissionResult> SubmitAnswer(DayNum day, PartNum part, string answer);
 	Task<Stats> GetDayResults();
+	Task AcquireStarLast(DayNum day);
 }

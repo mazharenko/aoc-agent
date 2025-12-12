@@ -22,7 +22,7 @@ internal class AoCClient(int year, string sessionToken, IHttpClientFactory httpC
 		return await response.Content.ReadAsStringAsync();
 	}
 
-	public async Task AcquireStar50()
+	public async Task AcquireStarLast(DayNum day)
 	{
 		var form = new FormUrlEncodedContent(
 			new Dictionary<string, string>
@@ -32,16 +32,16 @@ internal class AoCClient(int year, string sessionToken, IHttpClientFactory httpC
 			}
 		);
 		using var httpClient = CreateHttpClient();
-		var response = await httpClient.PostAsync($"/{year}/day/25/answer", form);
+		var response = await httpClient.PostAsync($"/{year}/day/{day}/answer", form);
 		response.EnsureSuccessStatusCode();
 		var content = await response.Content.ReadAsStringAsync();
 		if (content.Contains("You've finished every puzzle"))
 			return;
 		if (content.Contains("You don't seem to be solving the right level."))
 		{
-			if ((await GetDayResults()).IsSolved(DayNum.Create(25), PartNum._2))
+			if ((await GetDayResults()).IsSolved(day, PartNum._2))
 				return;
-			throw new InvalidOperationException("To acquire star 50, all other puzzles must be solved");
+			throw new InvalidOperationException("To acquire the last star, all other puzzles must be solved");
 		}
 		throw new InvalidOperationException("Could not interpret the submission result");
 	}
