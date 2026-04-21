@@ -3,7 +3,7 @@
 	"image": "mcr.microsoft.com/dotnet/nightly/sdk:10.0",
 	"features": {
 		"ghcr.io/devcontainers/features/dotnet:2": {},
-		"ghcr.io/devcontainers/features/powershell:1": {}
+		"ghcr.io/devcontainers/features/powershell:2": {}
 	},
 	"postStartCommand": "dotnet tool restore",
 	"customizations": {
